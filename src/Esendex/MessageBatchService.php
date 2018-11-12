@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2013, Esendex Ltd.
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Esendex nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,54 +25,64 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @category   Model
+ * @category   Service
  * @package    Esendex
  * @author     Esendex Support <support@esendex.com>
  * @copyright  2013 Esendex Ltd.
  * @license    http://opensource.org/licenses/BSD-3-Clause  BSD 3-Clause
  * @link       https://github.com/esendex/esendex-php-sdk
  */
-namespace Esendex\Model;
+namespace Esendex;
 
-class ResultItem
+class MessageBatchService
 {
-    private $id;
-    private $uri;
-    private $batchid;
+    const SERVICE = "messagebatches";
+    const SERVICE_VERSION = "v1.0";
+
+    private $authentication;
+    private $httpClient;
+    private $parser;
 
     /**
-     * @param $id
-     * @param $uri
-     * @param $batchid
+     * @param Authentication\IAuthentication $authentication
+     * @param Http\IHttp $httpClient
+     * @param Parser\MessageHeaderXmlParser $parser
      */
-    public function __construct($id, $uri, $batchid = null)
+    public function __construct(
+        Authentication\IAuthentication $authentication,
+        Http\IHttp $httpClient = null,
+        Parser\MessageBatchesXmlParser $parser = null
+    )
     {
-        $this->id = (string)$id;
-        $this->uri = (string)$uri;
-        $this->batchid = (string)$batchid;
+        $this->authentication = $authentication;
+        $this->httpClient = (isset($httpClient))
+            ? $httpClient
+            : new Http\HttpClient(true);
+        $this->parser = (isset($parser))
+            ? $parser
+            : new Parser\MessageBatchesXmlParser();
     }
 
     /**
-     * @return string
+     * Get detailed information about a message from it's messageId.
+     *
+     * @param $batchId
+     * @return Model\InboxMessage|Model\Batches
      */
-    public function id()
+    public function message($batchId)
     {
-        return $this->id;
+        $uri = Http\UriBuilder::serviceUri(
+            self::SERVICE_VERSION,
+            self::SERVICE,
+            array($batchId),
+            $this->httpClient->isSecure()
+        );
+        $result = $this->httpClient->get(
+            $uri,
+            $this->authentication
+        );
+
+        return $this->parser->parse($result);
     }
 
-    /**
-     * @return string
-     */
-    public function uri()
-    {
-        return $this->uri;
-    }
-
-    /**
-     * @return string
-     */
-    public function batchid()
-    {
-        return $this->batchid;
-    }
 }
