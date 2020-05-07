@@ -64,24 +64,28 @@ class MessageBatchesService
     }
 
     /**
-     * Get detailed information about messages from it's batchid.
+     * Get detailed information about messages from it's batch_id.
      *
-     * @param $messageId
-     * @return Model\InboxMessage|Model\SentMessage
+     * @param string $batch_id
+     * @param int $startIndex
+     * @param int $pageSize
+     * @return array
      */
-    public function messages($messageId)
+    public function messages($batch_id, $startIndex = 0, $pageSize = 15)
     {
         $uri = Http\UriBuilder::serviceUri(
             self::SERVICE_VERSION,
             self::SERVICE,
-            array($messageId,'messages'),
+            array($batch_id, 'messages'),
             $this->httpClient->isSecure()
         );
 
-        $result = $this->httpClient->get(
-            $uri,
-            $this->authentication
-        );
+        $query = array();
+        $query["startIndex"] = $startIndex;
+        $query["count"] = $pageSize;
+        $uri .= "?" . Http\UriBuilder::buildQuery($query);
+
+        $result = $this->httpClient->get($uri, $this->authentication);
 
         return $this->parser->parse($result);
     }
