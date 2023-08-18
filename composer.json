@@ -27,5 +27,8 @@
         "psr-0": {
             "Esendex": "src/"
         }
+    },
+    "config": {
+        "optimize-autoloader": true
     }
 }
