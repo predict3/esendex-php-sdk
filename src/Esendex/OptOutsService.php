@@ -185,4 +185,24 @@ class OptOutsService
         return $this->parser->parseMultipleResult($xmlResult);
     }
 
+    public function getByFrom(string $from)
+    {
+        $uri = Http\UriBuilder::serviceUri(
+            self::SERVICE_VERSION,
+            self::SERVICE,
+            null,
+            $this->httpClient->isSecure()
+        );
+
+        $query = array();
+        $query["from"] = $from;
+        $uri .= "?" . Http\UriBuilder::buildQuery($query);
+
+        $xmlResult = $this->httpClient->get(
+            $uri,
+            $this->authentication
+        );
+        return $this->parser->parseMultipleResult($xmlResult);
+    }
+
 }
