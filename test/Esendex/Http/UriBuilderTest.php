@@ -34,11 +34,9 @@
  */
 namespace Esendex\Http;
 
-class UriBuilderTest extends \PHPUnit_Framework_TestCase
+class UriBuilderTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function serviceUriReturnsExpectedUri()
     {
         $version = "v1.0";
@@ -49,12 +47,10 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $result);
     }
-	
-	/**
-     * @test
-	 * @runInSeparateProcess
-     */
-    function serviceUriWithOverrideHostReturnsExpectedUri()
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
+    function serviceUriWithOverrideHostReturnsExpectedUri(): void
     {
 		define("ESENDEX_API_HOST", "api.myfakeesendex.com");
 		
@@ -67,9 +63,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function serviceUriReturnsExpectedUriWhenUnsecured()
     {
         $version = "v1.0";
@@ -81,9 +75,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function serviceUriReturnsExpectedUriWithIdentifier()
     {
         $version = "v1.0";
@@ -96,9 +88,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function serviceUriReturnsExpectedUriWithIdentifierAndSubResource()
     {
         $version = "v1.0";
@@ -112,9 +102,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function serviceUriReturnsExpectedUriWithIdentifierRequiringEncoding()
     {
         $version = "v1.0";
@@ -128,9 +116,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function buildQueryReturnsExpectedQueryString()
     {
         $params = array(
@@ -144,9 +130,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function buildQueryWithNonUriCharsInValuesReturnsExpectedQueryString()
     {
         $params = array(
@@ -160,9 +144,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function buildQueryWithNonUriCharsInKeysReturnsExpectedQueryString()
     {
         $params = array(
@@ -176,9 +158,7 @@ class UriBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function buildQueryWithDateTimeValueReturnsExpectedQueryString()
     {
         $params = array(

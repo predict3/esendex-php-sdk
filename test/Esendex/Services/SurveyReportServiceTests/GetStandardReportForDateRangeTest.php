@@ -36,7 +36,7 @@ namespace Esendex;
 
 use Esendex\Model\Surveys\DateRangeType;
 
-class GetStandardReportForDateRangeTest extends \PHPUnit_Framework_TestCase
+class GetStandardReportForDateRangeTest extends \PHPUnit\Framework\TestCase
 {
     private $expectedRecipient = "447538414622";
     private $expectedStatus = "Delivered";
@@ -56,7 +56,7 @@ class GetStandardReportForDateRangeTest extends \PHPUnit_Framework_TestCase
     private $httpUtil;
     private $surveyId;
 
-    function setUp()
+    function setUp(): void
     {
         $response = "<rows>
                         <row>
@@ -82,7 +82,7 @@ class GetStandardReportForDateRangeTest extends \PHPUnit_Framework_TestCase
         $this->authentication = new Authentication\LoginAuthentication("SV0000001", "someone@esendex.com", "hunter2");
         $this->surveyId = "e6ea4f5e-4d41-4b1e-8912-6c3131978a77";
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil
             ->expects($this->once())
             ->method("get")
@@ -90,14 +90,12 @@ class GetStandardReportForDateRangeTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo("https://surveys.api.esendex.com/v1.0/surveys/{$this->surveyId}/report/standard?answerReceivedAfter=2016-12-01T00%3A00%3A00&answerReceivedBefore=2016-12-02T00%3A00%3A00"),
                 $this->equalTo($this->authentication)
             )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
 
         $this->service = new SurveyReportService($this->authentication, $this->httpUtil);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getStandardReport()
     {
         $result = $this->service->getStandardReport($this->surveyId, $this->startDate, $this->endDate, DateRangeType::AnswerReceived);

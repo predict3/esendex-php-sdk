@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class MessageHeaderServiceTest extends \PHPUnit_Framework_TestCase
+class MessageHeaderServiceTest extends \PHPUnit\Framework\TestCase
 {
     private $messageId;
     private $reference;
@@ -45,7 +45,7 @@ class MessageHeaderServiceTest extends \PHPUnit_Framework_TestCase
     private $parser;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->messageId = uniqid();
         $this->reference = "asjkdhlajksdhla";
@@ -57,10 +57,10 @@ class MessageHeaderServiceTest extends \PHPUnit_Framework_TestCase
             $this->password
         );
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\MessageHeaderXmlParser")
             ->disableOriginalConstructor()
@@ -69,9 +69,7 @@ class MessageHeaderServiceTest extends \PHPUnit_Framework_TestCase
         $this->service = new MessageHeaderService($this->authentication, $this->httpUtil, $this->parser);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function messageWithValidMessageHeaderId()
     {
         $response = "xml response";
@@ -86,12 +84,12 @@ class MessageHeaderServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue($messageHeader));
+            ->willReturn($messageHeader);
 
         $result = $this->service->message($this->messageId);
 
