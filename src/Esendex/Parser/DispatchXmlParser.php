@@ -94,15 +94,18 @@ class DispatchXmlParser
                     throw new ArgumentException("Alphanumeric originator contains invalid character(s)");
             }
         }
-        if (strlen($message->recipient()) < 1)
+        $recipient = $message->recipient();
+
+        if ($recipient === null || $recipient === '') {
             throw new ArgumentException("Recipient is invalid");
+        }
         if ($message->validityPeriod() > 72)
             throw new ArgumentException("Validity too long, must be less or equal to than 72");
 
         $child = $doc->addChild("message");
         if ($message->originator() != null)
             $child->from = $message->originator();
-        $child->to = $message->recipient();
+        $child->to = $recipient;
         $child->body = $message->body();
 		    $child->type = $message->type();
         if ($message->validityPeriod() > 0)

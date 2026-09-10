@@ -38,6 +38,7 @@ class SessionService
 {
     const SERVICE = 'session';
     const SERVICE_VERSION = 'v1.0';
+    private $httpUtil;
 
     function __construct(?Http\IHttp $httpClient = null)
     {

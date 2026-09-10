@@ -38,9 +38,9 @@ class EsendexException extends \Exception
 {
     private $exceptionInfo;
 
-    public function __construct($message = '', $code = null, ?array $_info = null)
+    public function __construct($message = '', ?int $code = null, ?array $_info = null)
     {
-        parent::__construct($message, $code);
+        parent::__construct($message, $code ?? 0);
 
         $this->exceptionInfo($_info);
     }
