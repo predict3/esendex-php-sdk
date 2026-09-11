@@ -46,7 +46,7 @@ class AccountXmlParserTest extends \PHPUnit\Framework\TestCase
         <reference>EX998877</reference>
         <label>Primary</label>
         <address>4477123456789</address>
-        <alias>Sales</alias>a
+        <alias>Sales</alias>
         <type>Professional</type>
         <messagesremaining>19</messagesremaining>
         <expireson>2099-09-04T00:00:00</expireson>
