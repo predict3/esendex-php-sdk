@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="EsendexSDK" default="test" phingVersion="2.4.2">
+<project name="EsendexSDK" default="test" phingVersion="3.1.0">
     <target name="check-access"
             description="Validate your credentials">
         <input propertyName="username" message="Esendex Username " promptChar="?"/>
@@ -99,7 +99,7 @@
 
     <adhoc-task name="load-version">
         <![CDATA[
-                class LoadVersionTask extends Task
+                class LoadVersionTask extends \Phing\Task
                 {
                     private $prefix = "version";
 
@@ -126,7 +126,7 @@
 
     <adhoc-task name="check-access">
         <![CDATA[
-                class CheckAccessTask extends Task
+                class CheckAccessTask extends \Phing\Task
                 {
                     private $username;
                     private $password;

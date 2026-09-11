@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class SessionServiceTest extends \PHPUnit_Framework_TestCase
+class SessionServiceTest extends \PHPUnit\Framework\TestCase
 {
     private $httpUtil;
     private $service;
@@ -46,18 +46,16 @@ class SessionServiceTest extends \PHPUnit_Framework_TestCase
 </session>
 XML;
 
-    function setUp()
+    function setUp(): void
     {
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $this->service = new SessionService($this->httpUtil);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function startSessionWithUsernameAndPassword()
     {
         $this->httpUtil
@@ -68,7 +66,7 @@ XML;
             $this->isInstanceOf("\\Esendex\\Authentication\\LoginAuthentication"),
             $this->isEmpty()
         )
-            ->will($this->returnValue(self::SESSION_RESPONSE_XML));
+            ->willReturn(self::SESSION_RESPONSE_XML);
 
         $result = $this->service->startSession("reference", "user", "password");
 

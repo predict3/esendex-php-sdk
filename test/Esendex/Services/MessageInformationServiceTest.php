@@ -37,7 +37,7 @@ namespace Esendex;
 use Esendex\Model\MessageBody;
 use Esendex\Model\MessageInformation;
 
-class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
+class MessageInformationServiceTest extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
@@ -47,7 +47,7 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
     private $parser;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->reference = "EX123456";
         $this->username = "jhdkfjh";
@@ -58,10 +58,10 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
             $this->password
         );
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\MessageInformationXmlParser")
             ->disableOriginalConstructor()
@@ -74,9 +74,7 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageInformationWithDefaults()
     {
         $message = "the message";
@@ -91,7 +89,7 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($message),
                 $this->equalTo(MessageBody::CharsetGSM)
             )
-            ->will($this->returnValue($request));
+            ->willReturn($request);
         $this->httpUtil
             ->expects($this->once())
             ->method("post")
@@ -102,21 +100,19 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($this->authentication),
                 $this->equalTo($request)
             )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($messageInformation)));
+            ->willReturn(array($messageInformation));
 
         $result = $this->service->getInformation($message);
 
         $this->assertSame($messageInformation, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageInformationWithSpecificCharset()
     {
         $message = "the message";
@@ -131,7 +127,7 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($message),
                 $this->equalTo(MessageBody::CharsetAuto)
             )
-            ->will($this->returnValue($request));
+            ->willReturn($request);
         $this->httpUtil
             ->expects($this->once())
             ->method("post")
@@ -142,19 +138,19 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($this->authentication),
                 $this->equalTo($request)
             )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($messageInformation)));
+            ->willReturn(array($messageInformation));
 
         $result = $this->service->getInformation($message, MessageBody::CharsetAuto);
 
         $this->assertSame($messageInformation, $result);
     }
 
-    function unexpectedResponses()
+    public static function unexpectedResponses(): array
     {
         return array(
             array(array()),
@@ -165,22 +161,17 @@ class MessageInformationServiceTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider unexpectedResponses
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('unexpectedResponses')]
     function getMessageInformationWithUnexpectedResponse($response)
     {
         $this->parser
             ->expects($this->once())
             ->method("parse")
-            ->will($this->returnValue($response));
+            ->willReturn($response);
 
-        $this->setExpectedException(
-            "\\Esendex\\Exceptions\\EsendexException",
-            "Error parsing the result",
-            null
-        );
+        $this->expectException(\Esendex\Exceptions\EsendexException::class);
+        $this->expectExceptionMessage("Error parsing the result");
 
         $result = $this->service->getInformation("a message");
     }

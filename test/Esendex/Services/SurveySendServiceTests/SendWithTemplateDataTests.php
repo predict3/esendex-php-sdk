@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class SendWithTemplateDataTests extends \PHPUnit_Framework_TestCase
+class SendWithTemplateDataTests extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
@@ -43,7 +43,7 @@ class SendWithTemplateDataTests extends \PHPUnit_Framework_TestCase
     private $httpUtil;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->reference = "EX123456";
         $this->username = "jhdkfjh";
@@ -54,17 +54,15 @@ class SendWithTemplateDataTests extends \PHPUnit_Framework_TestCase
             $this->password
         );
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(""));
+            ->willReturn("");
 
         $this->service = new SurveySendService($this->authentication, $this->httpUtil);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function sendSurveyWithTemplateData()
     {
         $surveyId = "586918CE-FC15-4204-9701-7DE5F975F9D6";
@@ -84,7 +82,7 @@ class SendWithTemplateDataTests extends \PHPUnit_Framework_TestCase
               $this->equalTo($this->authentication),
               $this->equalTo("{\"recipients\":[{\"phonenumber\":\"{$recipient}\",\"templatefields\":{\"{$fieldName}\":\"{$fieldValue}\",\"{$fieldName2}\":\"{$fieldValue2}\"},\"metadata\":null}]}")
             )
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->service->send($surveyId, $recipient, array($fieldName=>$fieldValue,$fieldName2=>$fieldValue2));
     }

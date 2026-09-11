@@ -36,7 +36,7 @@ namespace Esendex\Parser;
 
 use Esendex\Model\Message;
 
-class MessageHeaderXmlParserTest extends \PHPUnit_Framework_TestCase
+class MessageHeaderXmlParserTest extends \PHPUnit\Framework\TestCase
 {
     const OUTBOUND_RESPONSE_XML = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -66,9 +66,7 @@ class MessageHeaderXmlParserTest extends \PHPUnit_Framework_TestCase
 </messageheader>
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseOutboundMessage()
     {
         $parser = new MessageHeaderXmlParser();
@@ -144,9 +142,7 @@ XML;
 </messageheader>
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseFailedOutboundMessage()
     {
         $parser = new MessageHeaderXmlParser();
@@ -220,9 +216,7 @@ XML;
 </messageheader>
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseInboundMessage()
     {
         $parser = new MessageHeaderXmlParser();
@@ -257,9 +251,7 @@ XML;
         $this->assertEquals("e84ccbdc-732f-1485-0b03-0aa56519e001", $result->batchId());                
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseReadInboundMessage()
     {
         $readAt = "2013-03-07T15:20:12Z";

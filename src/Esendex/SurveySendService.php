@@ -45,7 +45,7 @@ class SurveySendService
      */
     public function __construct(
         Authentication\IAuthentication $authentication,
-        Http\IHttp $httpClient = null
+        ?Http\IHttp $httpClient = null
     ) {
         $this->authentication = $authentication;
         $this->httpClient = (isset($httpClient))

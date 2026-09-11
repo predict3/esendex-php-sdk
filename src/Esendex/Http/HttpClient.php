@@ -123,7 +123,6 @@ class HttpClient implements IHttp
         \curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
         if ($method == 'PUT' || $method == 'POST') {
             \curl_setopt($curlHandle, CURLOPT_POSTFIELDS, $data);
-            \curl_setopt($curlHandle, CURLOPT_BINARYTRANSFER, true);
             if (strlen($data) == 0) {
                 $httpHeaders[] = 'Content-Length: 0';
             }
@@ -138,8 +137,6 @@ class HttpClient implements IHttp
         $results['data'] = $result;
         $results['statuscode'] = $curlInfo["http_code"];
 
-        \curl_close($curlHandle);
-
         if ($results['statuscode'] < 200 || $results['statuscode'] >= 300) {
             throw $this->getHttpException($results, $curlInfo);
         }
@@ -148,7 +145,7 @@ class HttpClient implements IHttp
         return $results;
     }
 
-    private function getHttpException(array $result, array $info = null)
+    private function getHttpException(array $result, ?array $info = null)
     {
         $http_code = $result["statuscode"];
         $data = $result["data"];
