@@ -36,6 +36,11 @@ namespace Esendex\Model;
 
 class BatchesMessage
 {
+    // Public to preserve the behaviour of the former dynamic properties (json_encode, direct access)
+    public $phonenumber;
+    public $status;
+    public $id;
+
     /**
      * @param string $value
      * @return string
