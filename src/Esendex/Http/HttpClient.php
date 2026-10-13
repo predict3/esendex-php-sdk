@@ -123,7 +123,7 @@ class HttpClient implements IHttp
         \curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
         if ($method == 'PUT' || $method == 'POST') {
             \curl_setopt($curlHandle, CURLOPT_POSTFIELDS, $data);
-            if (strlen($data) == 0) {
+            if (strlen((string) $data) == 0) {
                 $httpHeaders[] = 'Content-Length: 0';
             }
             $httpHeaders[] = "Content-Type: {$contentType}; charset=utf-8";
