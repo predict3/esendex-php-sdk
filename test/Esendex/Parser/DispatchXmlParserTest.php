@@ -38,7 +38,7 @@ use Esendex\Model\Message;
 use Esendex\Model\MessageBody;
 use Esendex\Model\DispatchMessage;
 
-class DispatchXmlParserTest extends \PHPUnit_Framework_TestCase
+class DispatchXmlParserTest extends \PHPUnit\Framework\TestCase
 {
     const DISPATCHER_RESPONSE_XML = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -53,9 +53,7 @@ XML;
 <messageheaders xmlns="https://api.esendex.com/ns/" />
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodeMessage()
     {
         $reference = "EX123456";
@@ -85,9 +83,7 @@ XML;
         $this->assertEquals($expected, $result);
     }
     
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodeVoiceMessage()
     {
         $reference = "EX123456";
@@ -119,18 +115,16 @@ XML;
         $this->assertEquals($expected, $result);
     }
     
-    function characterSets()
+    public static function characterSets(): array
     {
         return array(array(MessageBody::CharsetGSM),
                      array(MessageBody::CharsetUnicode),
                      array(MessageBody::CharsetAuto));
     }
-    
-    /**
-     * @test
-     * @dataProvider characterSets
-     */
-    function encodeCharacterSetMessage($charset)
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('characterSets')]
+    function encodeCharacterSetMessage($charset): void
     {
         $reference = "EX123456";
         $message = new DispatchMessage(
@@ -159,17 +153,16 @@ XML;
         $this->assertEquals($expected, $result);
     }
     
-    function invalidOriginators()
+    public static function invalidOriginators(): array
     {
         return array(array("TooLongForAlpha", "Alphanumeric originator must <= 11 characters"),
                      array("BadChars{}", "Alphanumeric originator contains invalid character(s)"),
                      array("012345678901234567890", "Numeric originator must be <= 20 digits"));
     }
-    
-    /**
-     * @test
-     * @dataProvider invalidOriginators
-     */
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidOriginators')]
+
     function encodeMessageInvalidOriginator($originator, $expectedMessage)
     {
         $reference = "EX123456";
@@ -181,13 +174,12 @@ XML;
         );
         $parser = new DispatchXmlParser($reference);
 
-        $this->setExpectedException("\\Esendex\\Exceptions\\ArgumentException", $expectedMessage);
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage($expectedMessage);
         $parser->encode($message);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodeMessageInvalidRecipient()
     {
         $reference = "EX123456";
@@ -199,13 +191,12 @@ XML;
         );
         $parser = new DispatchXmlParser($reference);
 
-        $this->setExpectedException("\\Esendex\\Exceptions\\ArgumentException", "Recipient is invalid");
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("Recipient is invalid");
         $parser->encode($message);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodeMessageInvalidValidity()
     {
         $reference = "EX123456";
@@ -218,16 +209,13 @@ XML;
         );
         $parser = new DispatchXmlParser($reference);
 
-        $this->setExpectedException(
-            "\\Esendex\\Exceptions\\ArgumentException",
-            "Validity too long, must be less or equal to than 72"
-        );
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("Validity too long, must be less or equal to than 72");
+
         $parser->encode($message);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodeMessageBodyContainsAmpersand()
     {
         $reference = "EX123456";
@@ -244,9 +232,7 @@ XML;
         $this->assertThat($result, $this->stringContains("This &amp; That"));
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseMessageResults()
     {
         $parser = new DispatchXmlParser("reference");
@@ -264,9 +250,7 @@ XML;
         );
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseMessageResultsWithoutHeaders()
     {
         $parser = new DispatchXmlParser("reference");
@@ -276,14 +260,12 @@ XML;
         $this->assertEquals(0, count($result));
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseMessageResultsUnexpectedXml()
     {
         $parser = new DispatchXmlParser("reference");
 
-        $this->setExpectedException("\\Esendex\\Exceptions\\XmlException");
+        $this->expectException(\Esendex\Exceptions\XmlException::class);
         $parser->parse("<?xml version=\"1.0\" encoding=\"utf-8\"?><wrong />");
     }
 }

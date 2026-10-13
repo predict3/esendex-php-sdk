@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
+class SentMessagesServiceTest extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
@@ -44,17 +44,17 @@ class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
     private $parser;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->reference = "asjkdhlajksdhla";
         $this->username = "jhdkfjh";
         $this->password = "dklfjlsdjkf";
         $this->authentication = new Authentication\LoginAuthentication($this->reference, $this->username, $this->password);
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\SentMessagesXmlParser")
             ->disableOriginalConstructor()
@@ -63,9 +63,7 @@ class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
         $this->service = new SentMessagesService($this->authentication, $this->httpUtil, $this->parser);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestReturnsSentMessagesPage()
     {
         $response = "xml response";
@@ -80,21 +78,19 @@ class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue($sentMessagesPage));
+            ->willReturn($sentMessagesPage);
 
         $result = $this->service->latest();
 
         $this->assertSame($sentMessagesPage, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestWithStartIndexForPageStart()
     {
         $startIndex = 2;
@@ -112,9 +108,7 @@ class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
         $this->service->latest($startIndex);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestWithStartIndexAndCountToPage()
     {
         $startIndex = 11;
@@ -133,9 +127,7 @@ class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
         $this->service->latest($startIndex, $count);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestWithCountAloneLimitsReturnedResults()
     {
         $count = 2;
@@ -153,9 +145,7 @@ class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
         $this->service->latest(null, $count);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function loadMessagesWithStartAndFinishReturnsSentMessagesPage()
     {
         $start = new \DateTime();
@@ -178,13 +168,13 @@ class SentMessagesServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
 
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue($sentMessagesPage));
+            ->willReturn($sentMessagesPage);
 
         $options = array('start' => $start, 'finish' => $finish);
         $result = $this->service->loadMessages($options);

@@ -36,7 +36,7 @@ namespace Esendex;
 
 use Esendex\Model\OptOut;
 
-class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
+class OptOutsServiceTest extends \PHPUnit\Framework\TestCase
 {
     const OPTOUT_XML_RESPONSE = "<optout id=\"47a1144b-8a68-4608-9360-d4a52aaf90d2\">
                                     <accountreference>EX0012345</accountreference>
@@ -55,7 +55,7 @@ class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
 
     public $parser;
 
-    function setUp()
+    function setUp(): void
     {
         $this->optOutId = "47a1144b-8a68-4608-9360-d4a52aaf90d2";
         $this->username = "jhdkfjh";
@@ -67,10 +67,10 @@ class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
             $this->password
         );
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\OptOutXmlParser")
             ->disableOriginalConstructor()
@@ -79,9 +79,7 @@ class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
         $this->service = new OptOutsService($this->authentication, $this->httpUtil, $this->parser);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getById()
     {
         $expectedOptOut = new OptOut();
@@ -94,20 +92,18 @@ class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue(true));
+            ->willReturn(true);
             
         $this->parser->expects($this->any())
             ->method("parse")
-            ->will($this->returnValue($expectedOptOut));
+            ->willReturn($expectedOptOut);
 
         $result = $this->service->getById($this->optOutId);
         
         $this->assertSame($expectedOptOut, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function add()
     {
         $expectedRequest = "<optout><accountreference>EX123456</accountreference><from><phonenumber>447712345678</phonenumber><from><optout>";
@@ -115,7 +111,7 @@ class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
         $mobileNumber = "447712345678";
         $this->parser->expects($this->any())
             ->method("encodePostRequest")
-            ->will($this->returnValue($expectedRequest));
+            ->willReturn($expectedRequest);
             
         $this->httpUtil
             ->expects($this->once())
@@ -127,20 +123,18 @@ class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
             $this->equalTo($this->authentication),
             $this->equalTo($expectedRequest)
         )
-            ->will($this->returnValue(true));
+            ->willReturn(true);
             
         $this->parser->expects($this->any())
             ->method("parsePostResponse")
-            ->will($this->returnValue($expectedOptOut));
+            ->willReturn($expectedOptOut);
 
         $result = $this->service->add($this->reference, $mobileNumber);
         
         $this->assertSame($expectedOptOut, $result);
     }
     
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function get()
     {
         $expectedOptOuts = array();
@@ -154,11 +148,11 @@ class OptOutsServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue(true));
+            ->willReturn(true);
             
         $this->parser->expects($this->any())
             ->method("parseMultipleResult")
-            ->will($this->returnValue($expectedOptOuts));
+            ->willReturn($expectedOptOuts);
 
         $result = $this->service->get(1, 20);
         

@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class DispatchServiceTest extends \PHPUnit_Framework_TestCase
+class DispatchServiceTest extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
@@ -45,7 +45,7 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
 
     public $parser;
 
-    function setUp()
+    function setUp(): void
     {
         $this->reference = "EX123456";
         $this->username = "jhdkfjh";
@@ -56,10 +56,10 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
             $this->password
         );
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\DispatchXmlParser")
             ->disableOriginalConstructor()
@@ -68,9 +68,7 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
         $this->service = new DispatchService($this->authentication, $this->httpUtil, $this->parser);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function sendMultipleSuccess()
     {
         $messages = array(
@@ -88,7 +86,7 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method("encodeMultiple")
             ->with($this->equalTo($messages))
-            ->will($this->returnValue($request));
+            ->willReturn($request);
         $this->httpUtil
             ->expects($this->once())
             ->method("post")
@@ -99,21 +97,19 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($this->authentication),
                 $this->equalTo($request)
             )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($resultItem)));
+            ->willReturn(array($resultItem));
 
         $result = $this->service->sendMultiple($messages);
 
         $this->assertSame(array($resultItem), $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function sendSuccess()
     {
         $message = new Model\DispatchMessage("DispatcherTest", "447712345678", "Message Body", Model\Message::SmsType);
@@ -128,7 +124,7 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method("encode")
             ->with($this->equalTo($message))
-            ->will($this->returnValue($request));
+            ->willReturn($request);
         $this->httpUtil
             ->expects($this->once())
             ->method("post")
@@ -139,34 +135,29 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
             $this->equalTo($this->authentication),
             $this->equalTo($request)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($resultItem)));
+            ->willReturn(array($resultItem));
 
         $result = $this->service->send($message);
 
         $this->assertSame($resultItem, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function sendFailure()
     {
         $message = new Model\DispatchMessage("DispatcherTest", "447712345678", "Message Body", Model\Message::SmsType);
         $this->parser
             ->expects($this->any())
             ->method("parse")
-            ->will($this->returnValue(array()));
+            ->willReturn(array());
 
-        $this->setExpectedException(
-            "\\Esendex\\Exceptions\\EsendexException",
-            "Error parsing the dispatch result",
-            null
-        );
+        $this->expectException(\Esendex\Exceptions\EsendexException::class);
+        $this->expectExceptionMessage("Error parsing the dispatch result");
 
         $this->service->send($message);
     }
@@ -189,9 +180,7 @@ class DispatchServiceTest extends \PHPUnit_Framework_TestCase
 </accounts>
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getCredits()
     {
         $this->httpUtil
@@ -203,7 +192,7 @@ XML;
             ),
             $this->isInstanceOf("\\Esendex\\Authentication\\LoginAuthentication")
         )
-            ->will($this->returnValue(self::ACCOUNTS_RESPONSE_XML));
+            ->willReturn(self::ACCOUNTS_RESPONSE_XML);
 
         $result = $this->service->getCredits();
 
@@ -227,9 +216,7 @@ XML;
 </accounts>
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getCreditsNoCredits()
     {
         $this->httpUtil
@@ -241,7 +228,7 @@ XML;
             ),
             $this->isInstanceOf("\\Esendex\\Authentication\\LoginAuthentication")
         )
-            ->will($this->returnValue(self::ACCOUNTS_NOCREDITS_RESPONSE_XML));
+            ->willReturn(self::ACCOUNTS_NOCREDITS_RESPONSE_XML);
 
         $result = $this->service->getCredits();
 

@@ -35,7 +35,7 @@
 namespace Esendex;
 use Esendex\Model\MessageBody;
 
-class MessageBodyServiceTest extends \PHPUnit_Framework_TestCase
+class MessageBodyServiceTest extends \PHPUnit\Framework\TestCase
 {
     const MESSAGEBODY_RESPONSE_XML = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -60,7 +60,7 @@ XML;
     private $httpUtil;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->messageId = uniqid();
         $this->accountReference = "asjkdhlajksdhla";
@@ -68,17 +68,15 @@ XML;
         $this->password = "dklfjlsdjkf";
         $this->authentication = new Authentication\LoginAuthentication($this->accountReference, $this->username, $this->password);
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->service = new MessageBodyService($this->authentication, $this->httpUtil);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageBodyById()
     {
         $this->httpUtil
@@ -90,7 +88,7 @@ XML;
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue(self::MESSAGEBODY_RESPONSE_XML));
+            ->willReturn(self::MESSAGEBODY_RESPONSE_XML);
 
         $messageBody = $this->service->getMessageBodyById($this->messageId);
 
@@ -100,29 +98,25 @@ XML;
         $this->assertEquals(MessageBody::CharsetGSM, $messageBody->characterSet());
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageBodyByIdWhenNullId()
     {
-        $this->setExpectedException("\\Esendex\\Exceptions\\ArgumentException", "messageId is null");
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("messageId is null");
 
         $this->service->getMessageBodyById(null);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageBodyByIdWhenNotString()
     {
-        $this->setExpectedException("\\Esendex\\Exceptions\\ArgumentException", "messageId is not a string");
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("messageId is not a string");
 
         $this->service->getMessageBodyById(99);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageBodyWithMessageBodyUri()
     {
         $bodyUri = "https://api.esendex.com/v1.0/messageheaders/{$this->messageId}/body";
@@ -130,16 +124,14 @@ XML;
             ->expects($this->once())
             ->method("get")
             ->with($this->equalTo($bodyUri))
-            ->will($this->returnValue(self::MESSAGEBODY_RESPONSE_XML));
+            ->willReturn(self::MESSAGEBODY_RESPONSE_XML);
 
         $messageBody = $this->service->getMessageBody($bodyUri);
 
         $this->assertEquals("Merci", $messageBody);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getSmartMessageBodyWithMessageBodyUri()
     {
         $bodyUri = "https://api.esendex.com/v1.0/messageheaders/{$this->messageId}/body";
@@ -147,7 +139,7 @@ XML;
             ->expects($this->once())
             ->method("get")
             ->with($this->equalTo($bodyUri))
-            ->will($this->returnValue(self::SMART_MESSAGEBODY_XML));
+            ->willReturn(self::SMART_MESSAGEBODY_XML);
 
         $messageBody = $this->service->getMessageBody($bodyUri);
 
@@ -155,9 +147,7 @@ XML;
         $this->assertEquals("None", $messageBody->characterSet());
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageBodyWithMessageHeader()
     {
         $bodyUri = "https://api.esendex.com/v1.0/messageheaders/{$this->messageId}/body";
@@ -165,7 +155,7 @@ XML;
             ->expects($this->once())
             ->method("get")
             ->with($this->equalTo($bodyUri))
-            ->will($this->returnValue(self::MESSAGEBODY_RESPONSE_XML));
+            ->willReturn(self::MESSAGEBODY_RESPONSE_XML);
 
         $messageHeader = new Model\SentMessage();
         $messageHeader->bodyUri($bodyUri);
@@ -174,15 +164,12 @@ XML;
         $this->assertEquals("Merci", $messageBody);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getMessageBodyWhenInvalidInput()
     {
-        $this->setExpectedException(
-            "\\Esendex\\Exceptions\\ArgumentException",
-            "Should be either MessageBody Uri or ResultMessage"
-        );
+
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("Should be either MessageBody Uri or ResultMessage");
 
         $this->service->getMessageBody(99);
     }

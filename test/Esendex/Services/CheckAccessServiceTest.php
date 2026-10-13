@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class CheckAccessServiceTest extends \PHPUnit_Framework_TestCase
+class CheckAccessServiceTest extends \PHPUnit\Framework\TestCase
 {
     const ACCOUNTS_RESPONSE_XML = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -61,7 +61,7 @@ XML;
     private $httpUtil;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->reference = "EX123456";
         $this->username = "jhdkfjh";
@@ -72,17 +72,15 @@ XML;
             $this->password
         );
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->service = new CheckAccessService($this->httpUtil);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function checkAccess()
     {
         $this->httpUtil
@@ -94,16 +92,14 @@ XML;
             ),
             $this->isInstanceOf("\\Esendex\\Authentication\\LoginAuthentication")
         )
-            ->will($this->returnValue(self::ACCOUNTS_RESPONSE_XML));
+            ->willReturn(self::ACCOUNTS_RESPONSE_XML);
 
         $result = $this->service->checkAccess($this->reference, $this->username, $this->password);
 
         $this->assertTrue($result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function checkAccessInputCaseMismatchWithResponseCase()
     {
         $this->httpUtil
@@ -115,31 +111,27 @@ XML;
             ),
             $this->isInstanceOf("\\Esendex\\Authentication\\LoginAuthentication")
         )
-            ->will($this->returnValue(self::ACCOUNTS_RESPONSE_XML));
+            ->willReturn(self::ACCOUNTS_RESPONSE_XML);
 
         $result = $this->service->checkAccess(strtolower($this->reference), $this->username, $this->password);
 
         $this->assertTrue($result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function checkAccessAccountReferenceNotAccessible()
     {
         $this->httpUtil
             ->expects($this->once())
             ->method("get")
-            ->will($this->returnValue(self::ACCOUNTS_RESPONSE_XML));
+            ->willReturn(self::ACCOUNTS_RESPONSE_XML);
 
         $result = $this->service->checkAccess("Wrong", $this->username, $this->password);
 
         $this->assertFalse($result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function checkSessionAccess()
     {
         $session = new Authentication\SessionAuthentication($this->reference, uniqid());
@@ -150,16 +142,14 @@ XML;
             $this->anything(),
             $this->equalTo($session)
         )
-            ->will($this->returnValue(self::ACCOUNTS_RESPONSE_XML));
+            ->willReturn(self::ACCOUNTS_RESPONSE_XML);
 
         $result = $this->service->checkSessionAccess($session);
 
         $this->assertTrue($result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function checkAuthenticationAccess()
     {
         $this->httpUtil
@@ -169,16 +159,14 @@ XML;
             $this->anything(),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue(self::ACCOUNTS_RESPONSE_XML));
+            ->willReturn(self::ACCOUNTS_RESPONSE_XML);
 
         $result = $this->service->checkAuthenticationAccess($this->authentication);
 
         $this->assertTrue($result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function checkAuthenticationAccessUnexpectedResponse()
     {
         $this->httpUtil

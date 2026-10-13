@@ -1,23 +1,15 @@
 Esendex PHP Client
 ==================
-[![Build Status](https://travis-ci.org/esendex/esendex-php-sdk.svg)](https://travis-ci.org/esendex/esendex-php-sdk) [![Latest Stable Version](https://poser.pugx.org/esendex/sdk/v/stable.png)](https://packagist.org/packages/esendex/sdk) [![Latest Unstable Version](https://poser.pugx.org/esendex/sdk/v/unstable.png)](https://packagist.org/packages/esendex/sdk) [![License](https://poser.pugx.org/esendex/sdk/license.png)](https://packagist.org/packages/esendex/sdk)
 
 ## Installation
 
 ### Requirements
- - PHP >= 5.3.0
- - ext-curl enabled
+ - PHP 8.3 or later (PHP 8.x)
+ - ext-curl, ext-simplexml and ext-ctype enabled
 
-The **esendex-php-sdk** is available to install through several methods as well as from source.
+The **esendex-php-sdk** is installed through Composer.
 
 #### Composer
-```json
-{
-    "require": {
-        "esendex/sdk": "2.*.*"
-    }
-}
-```
 Composer is not included within the repository, so you will need to retrieve it using the following command:
 ```bash
 curl -sS https://getcomposer.org/installer | php
@@ -25,34 +17,36 @@ curl -sS https://getcomposer.org/installer | php
 
 For installation on other platforms see [getcomposer.org](https://getcomposer.org)
 
-We're in the default [`Packagist`](http://packagist.org/packages/esendex/sdk) repository so just run
-```bash
-$ php composer.phar require esendex/sdk:2.*.*
+#### Predict fork
+This repository is the Predict fork of the SDK, available at `https://github.com/predict3/esendex-php-sdk.git`.
+It keeps the original Composer package name `esendex/sdk`, so it must be declared as a VCS repository in your *composer.json*:
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/predict3/esendex-php-sdk.git"
+        }
+    ]
+}
 ```
-or add the package above to your *composer.json*
+or with the following command:
+```bash
+$ php composer.phar config repositories.esendex-sdk vcs https://github.com/predict3/esendex-php-sdk.git
+```
 
-Then just include the generated *autoload.php* somewhere in your code;
+Then run
+```bash
+$ php composer.phar require esendex/sdk
+```
+Composer will install the latest stable version of the fork and add the matching version constraint to your *composer.json*.
+
+> **Warning:** the [`esendex/sdk`](https://packagist.org/packages/esendex/sdk) package published on Packagist is the upstream SDK, not this fork.
+> Without the VCS repository above, `composer require esendex/sdk` installs the upstream version, which does not include the fork's changes.
+
+Then just include Composer's generated *autoload.php* somewhere in your code;
 ```php5
 require_once 'path/to/vendor/autoload.php';
-```
-
-#### PEAR
-Our package requires version 1.9.3 or newer
-```bash
-$ pear config-set auto_discover 1
-$ pear install esendex.github.com/pear/Esendex
-```
-We provide a PSR-0 autoloader you can use for your convenience;
-```php5
-require_once 'Esendex/autoload.php';
-```
-
-#### GZIP
-Download the current version [here](http://downloads.esendex.com.s3-website-eu-west-1.amazonaws.com/esendex-php-sdk/latest.sdk)
-
-Our autoloader may be included somewhere in your application;
-```php5
-require_once 'path/to/downloaded/Esendex/autoload.php';
 ```
 
 ## Getting Started

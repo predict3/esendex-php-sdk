@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class InboxServiceTest extends \PHPUnit_Framework_TestCase
+class InboxServiceTest extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
@@ -44,17 +44,17 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
     private $parser;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->reference = "asjkdhlajksdhla";
         $this->username = "jhdkfjh";
         $this->password = "dklfjlsdjkf";
         $this->authentication = new Authentication\LoginAuthentication($this->reference, $this->username, $this->password);
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\InboxXmlParser")
             ->disableOriginalConstructor()
@@ -63,9 +63,7 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
         $this->service = new InboxService($this->authentication, $this->httpUtil, $this->parser);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestReturnsInboxPage()
     {
         $response = "xml response";
@@ -80,21 +78,19 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue($inboxPage));
+            ->willReturn($inboxPage);
 
         $result = $this->service->latest();
 
         $this->assertSame($inboxPage, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestWithStartIndexForPageStart()
     {
         $startIndex = 2;
@@ -112,9 +108,7 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
         $this->service->latest($startIndex);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestWithStartIndexAndCountToPage()
     {
         $startIndex = 11;
@@ -134,9 +128,7 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
         $this->service->latest($startIndex, $count);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function latestWithCountAloneLimitsReturnedResults()
     {
         $count = 2;
@@ -154,9 +146,7 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
         $this->service->latest(null, $count);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function deleteInboxMessageSuccess()
     {
         $messageId = uniqid();
@@ -170,14 +160,12 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue(200));
+            ->willReturn(200);
 
         $this->assertTrue($this->service->deleteInboxMessage($messageId));
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function deleteInboxMessageFailure()
     {
         $messageId = uniqid();
@@ -185,49 +173,55 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
         $this->httpUtil
             ->expects($this->once())
             ->method("delete")
-            ->will($this->returnValue(404));
+            ->willReturn(404);
 
         $this->assertFalse($this->service->deleteInboxMessage($messageId));
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function updateInboxMessageReadStatusSuccess()
     {
         $messageId = uniqid();
 
-        $readParameters = array(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/inbox/messages/{$messageId}?action=read"
-            ),
-            $this->equalTo($this->authentication)
-        );
-        $unreadParameters = array(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/inbox/messages/{$messageId}?action=unread"
-            ),
-            $this->equalTo($this->authentication)
-        );
+        $expectedParameters = [
+            [
+                "https://api.esendex.com/v1.0/inbox/messages/{$messageId}?action=read",
+                $this->authentication,
+            ],
+            [
+                "https://api.esendex.com/v1.0/inbox/messages/{$messageId}?action=read",
+                $this->authentication,
+            ],
+            [
+                "https://api.esendex.com/v1.0/inbox/messages/{$messageId}?action=unread",
+                $this->authentication,
+            ],
+        ];
+
+        $callIndex = 0;
 
         $this->httpUtil
             ->expects($this->exactly(3))
             ->method("put")
-            ->withConsecutive(
-                $readParameters,
-                $readParameters,
-                $unreadParameters
+            ->with(
+                $this->callback(function (string $url) use (&$callIndex, $expectedParameters): bool {
+                    return $url === $expectedParameters[$callIndex][0];
+                }),
+                $this->callback(function ($authentication) use (&$callIndex, $expectedParameters): bool {
+                    $matches = $authentication === $expectedParameters[$callIndex][1];
+                    $callIndex++;
+
+                    return $matches;
+                })
             )
-            ->will($this->returnValue(200));
+            ->willReturn(200);
 
         $this->assertTrue($this->service->updateReadStatus($messageId));
         $this->assertTrue($this->service->updateReadStatus($messageId, true));
         $this->assertTrue($this->service->updateReadStatus($messageId, false));
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function updateInboxMessageReadStatusFailure()
     {
         $messageId = uniqid();
@@ -235,7 +229,7 @@ class InboxServiceTest extends \PHPUnit_Framework_TestCase
         $this->httpUtil
             ->expects($this->exactly(3))
             ->method("put")
-            ->will($this->returnValue(404));
+            ->willReturn(404);
 
         $this->assertFalse($this->service->updateReadStatus($messageId));
         $this->assertFalse($this->service->updateReadStatus($messageId, true));
