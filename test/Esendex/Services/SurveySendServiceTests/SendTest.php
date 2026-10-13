@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class SendWithMetadataTests extends \PHPUnit\Framework\TestCase
+class SendTest extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
@@ -63,13 +63,10 @@ class SendWithMetadataTests extends \PHPUnit\Framework\TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function sendSurveyWithMetaData()
+    function sendSurvey()
     {
         $surveyId = "586918CE-FC15-4204-9701-7DE5F975F9D6";
         $recipient = "447712345678";
-        $metaDataKey = "metadata1key";
-        $metaDataValue = "metadata1value";
-        
         $this->httpUtil
             ->expects($this->once())
             ->method("postJson")
@@ -78,10 +75,10 @@ class SendWithMetadataTests extends \PHPUnit\Framework\TestCase
                   "https://surveys.api.esendex.com/v1.0/surveys/{$surveyId}/send"
               ),
               $this->equalTo($this->authentication),
-              $this->equalTo("{\"recipients\":[{\"phonenumber\":\"{$recipient}\",\"templatefields\":null,\"metadata\":{\"{$metaDataKey}\":\"{$metaDataValue}\"}}]}")
+              $this->equalTo("{\"recipients\":[{\"phonenumber\":\"{$recipient}\",\"templatefields\":null,\"metadata\":null}]}")
             )
             ->willReturn(true);
 
-        $this->service->send($surveyId, $recipient, null, array($metaDataKey=>$metaDataValue));
+        $this->service->send($surveyId, $recipient);
     }
 }

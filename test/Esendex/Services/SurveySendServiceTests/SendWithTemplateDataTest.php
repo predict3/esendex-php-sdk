@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class SendWithTemplateDataTests extends \PHPUnit\Framework\TestCase
+class SendWithTemplateDataTest extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
