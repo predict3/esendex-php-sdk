@@ -84,6 +84,26 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function encodePostRequestWithNullPhoneNumber()
+    {
+        $parser = new OptOutXmlParser();
+
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("Recipient is invalid");
+        $parser->encodePostRequest("EX0012345", null);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function encodePostRequestWithNullAccountReference()
+    {
+        $parser = new OptOutXmlParser();
+
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("Account reference is invalid");
+        $parser->encodePostRequest(null, "44712345678");
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseOptOut()
     {
         $parser = new OptOutXmlParser();
