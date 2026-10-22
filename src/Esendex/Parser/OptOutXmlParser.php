@@ -35,6 +35,7 @@
 
 namespace Esendex\Parser;
 
+use Esendex\Exceptions\ArgumentException;
 use Esendex\Model\OptOut;
 use Esendex\Model\Api;
 use Esendex\Model\OptOutsPage;
@@ -66,9 +67,9 @@ class OptOutXmlParser
 
     public function encodePostRequest($accountReference, $phoneNumber)
     {
-        if (strlen($phoneNumber) < 1)
+        if (strlen((string) $phoneNumber) < 1)
             throw new ArgumentException("Recipient is invalid");
-        if (strlen($accountReference) < 1)
+        if (strlen((string) $accountReference) < 1)
             throw new ArgumentException("Account reference is invalid");
 
         $doc = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><optout />", 0, false, Api::NS);

@@ -34,12 +34,12 @@
  */
 namespace Esendex\Parser;
 
-class SentMessagesXmlParserTest extends \PHPUnit_Framework_TestCase
+class SentMessagesXmlParserTest extends \PHPUnit\Framework\TestCase
 {
     private $headerParser;
     private $parser;
 
-    function setUp()
+    function setUp(): void
     {
         $this->headerParser = $this->getMockBuilder("\\Esendex\\Parser\\MessageHeaderXmlParser")
             ->disableOriginalConstructor()
@@ -119,15 +119,13 @@ class SentMessagesXmlParserTest extends \PHPUnit_Framework_TestCase
 </messageheaders>
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseXmlWithResults()
     {
         $this->headerParser
             ->expects($this->exactly(3))
             ->method("parseHeader")
-            ->will($this->returnValue(new \Esendex\Model\SentMessage()));
+            ->willReturn(new \Esendex\Model\SentMessage());
 
         $result = $this->parser->parse(self::SENT_MESSAGE_RESPONSE_XML);
 
@@ -147,9 +145,7 @@ XML;
                 xmlns="http://api.esendex.com/ns/" />
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseXmlWithNoResults()
     {
         $this->headerParser

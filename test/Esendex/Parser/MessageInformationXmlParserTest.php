@@ -38,9 +38,9 @@ use Esendex\Model\Api;
 use Esendex\Model\MessageBody;
 use Esendex\Model\MessageInformation;
 
-class MessageInformationXmlParserTest extends \PHPUnit_Framework_TestCase
+class MessageInformationXmlParserTest extends \PHPUnit\Framework\TestCase
 {
-    function characterSets()
+    public static function characterSets(): array
     {
         return array(
             array(MessageBody::CharsetGSM),
@@ -49,11 +49,9 @@ class MessageInformationXmlParserTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * @test
-     * @dataProvider characterSets
-     */
-    function encodeRequest($characterSet)
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\DataProvider('characterSets')]
+    function encodeRequest($characterSet): void
     {
         $message = "the message";
         $parser = new MessageInformationXmlParser();
@@ -69,15 +67,13 @@ class MessageInformationXmlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodeRequestInvalidCharacterSet()
     {
         $parser = new MessageInformationXmlParser();
 
-        $this->setExpectedException(
-            "\\Esendex\\Exceptions\\ArgumentException",
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage(
             "characterSet value was 'Latin1' and must be one of 'GSM', " .
             "'Unicode' or 'Auto'"
         );
@@ -85,9 +81,7 @@ class MessageInformationXmlParserTest extends \PHPUnit_Framework_TestCase
         $result = $parser->encode("a message", "Latin1");
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodeMessageBodyContainingXmlEntities()
     {
         $parser = new MessageInformationXmlParser();
@@ -114,9 +108,7 @@ class MessageInformationXmlParserTest extends \PHPUnit_Framework_TestCase
 </response>
 XML;
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseResponse()
     {
         $parser = new MessageInformationXmlParser();

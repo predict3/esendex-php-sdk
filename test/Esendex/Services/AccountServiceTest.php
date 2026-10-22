@@ -34,7 +34,7 @@
  */
 namespace Esendex;
 
-class AccountServiceTest extends \PHPUnit_Framework_TestCase
+class AccountServiceTest extends \PHPUnit\Framework\TestCase
 {
     private $reference;
     private $username;
@@ -44,17 +44,17 @@ class AccountServiceTest extends \PHPUnit_Framework_TestCase
     private $parser;
     private $service;
 
-    function setUp()
+    function setUp(): void
     {
         $this->reference = "asjkdhlajksdhla";
         $this->username = "jhdkfjh";
         $this->password = "dklfjlsdjkf";
         $this->authentication = new Authentication\LoginAuthentication($this->reference, $this->username, $this->password);
 
-        $this->httpUtil = $this->getMock("\\Esendex\\Http\\IHttp");
+        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\AccountXmlParser")
             ->disableOriginalConstructor()
@@ -63,9 +63,7 @@ class AccountServiceTest extends \PHPUnit_Framework_TestCase
         $this->service = new AccountService($this->authentication, $this->httpUtil, $this->parser);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getAccount()
     {
         $response = "xml response";
@@ -81,21 +79,19 @@ class AccountServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($account)));
+            ->willReturn(array($account));
 
         $result = $this->service->getAccount();
 
         $this->assertSame($account, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getAccountNoMatchingAccountReference()
     {
         $response = "xml response";
@@ -111,21 +107,19 @@ class AccountServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($account)));
+            ->willReturn(array($account));
 
         $result = $this->service->getAccount();
 
         $this->assertNull($result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getAccountWithSpecificReference()
     {
         $response = "xml response";
@@ -144,21 +138,19 @@ class AccountServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($defaultAccount,$requiredAccount)));
+            ->willReturn(array($defaultAccount,$requiredAccount));
 
         $result = $this->service->getAccount($specificReference);
 
         $this->assertSame($requiredAccount, $result);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function getAccounts()
     {
         $response = "xml response";
@@ -174,12 +166,12 @@ class AccountServiceTest extends \PHPUnit_Framework_TestCase
             ),
             $this->equalTo($this->authentication)
         )
-            ->will($this->returnValue($response));
+            ->willReturn($response);
         $this->parser
             ->expects($this->once())
             ->method("parse")
             ->with($this->equalTo($response))
-            ->will($this->returnValue(array($accountOne, $accountTwo)));
+            ->willReturn(array($accountOne, $accountTwo));
 
         $result = $this->service->getAccounts();
 

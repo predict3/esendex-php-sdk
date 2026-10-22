@@ -34,11 +34,9 @@
  */
 namespace Esendex\Authentication;
 
-class LoginAuthenticationTest extends \PHPUnit_Framework_TestCase
+class LoginAuthenticationTest extends \PHPUnit\Framework\TestCase
 {
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function serialiseReturnsExpectedValue()
     {
         $reference = "EX000999";

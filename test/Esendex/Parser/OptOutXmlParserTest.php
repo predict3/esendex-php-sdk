@@ -36,7 +36,7 @@ namespace Esendex\Parser;
 
 use Esendex\Model\OptOut;
 
-class OptOutXmlParserTest extends \PHPUnit_Framework_TestCase
+class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
 {
     const OPTOUT_RESPONSE_XML = "<optout id=\"47a1144b-8a68-4608-9360-d4a52aaf90d2\">
                                     <accountreference>EX0012345</accountreference>
@@ -72,9 +72,7 @@ class OptOutXmlParserTest extends \PHPUnit_Framework_TestCase
                                      </optout>
                                   </optouts>";
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function encodePostRequest()
     {
         $parser = new OptOutXmlParser();
@@ -85,9 +83,27 @@ class OptOutXmlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($formattedExpectedResult, $formattedResult);
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
+    function encodePostRequestWithNullPhoneNumber()
+    {
+        $parser = new OptOutXmlParser();
+
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("Recipient is invalid");
+        $parser->encodePostRequest("EX0012345", null);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function encodePostRequestWithNullAccountReference()
+    {
+        $parser = new OptOutXmlParser();
+
+        $this->expectException(\Esendex\Exceptions\ArgumentException::class);
+        $this->expectExceptionMessage("Account reference is invalid");
+        $parser->encodePostRequest(null, "44712345678");
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseOptOut()
     {
         $parser = new OptOutXmlParser();
@@ -100,14 +116,12 @@ class OptOutXmlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("EX0012345", $result->accountReference());
         $this->assertEquals("44712345678", $result->from()->phoneNumber());
         $this->assertEquals(
-            \DateTime::createFromFormat(\DateTime::ISO8601, "2016-10-10T13:00:00.1234567Z"),
+            new \DateTime("2016-10-10T13:00:00.123Z"),
             $result->receivedAt()
         );
     }
 
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parsePostResponse()
     {
         $parser = new OptOutXmlParser();
@@ -122,14 +136,12 @@ class OptOutXmlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("EX0012345", $result->accountReference());
         $this->assertEquals("44712345678", $result->from()->phoneNumber());
         $this->assertEquals(
-            \DateTime::createFromFormat(\DateTime::ISO8601, "2016-10-10T13:00:00.1234567Z"),
+            new \DateTime("2016-10-10T13:00:00.123Z"),
             $result->receivedAt()
         );
     }
     
-    /**
-     * @test
-     */
+    #[\PHPUnit\Framework\Attributes\Test]
     function parseMultipleResult()
     {
         $parser = new OptOutXmlParser();
@@ -145,7 +157,7 @@ class OptOutXmlParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("47a1144b-8a68-4608-9360-d4a52aaf90d2", $optOuts[0]->id());        
         $this->assertEquals("EX0012345", $optOuts[0]->accountReference());
         $this->assertEquals("447728693893", $optOuts[0]->from()->phoneNumber());
-        $expectedDate = \DateTime::createFromFormat(\DateTime::ISO8601, "2016-10-10T13:00:00.1234567Z");
+        $expectedDate = new \DateTime("2015-11-09T15:18:19.033333Z");
         $this->assertEquals($expectedDate, $optOuts[0]->receivedAt()
         );
     }
