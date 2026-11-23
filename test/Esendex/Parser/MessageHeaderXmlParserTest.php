@@ -87,6 +87,7 @@ XML;
         );
 
         $this->assertEquals("e84ccbdc-732f-1485-0b03-0aa56519e001", $result->batchId());
+        $this->assertNull($result->failureReason());
     }
 
     const FAILED_OUTBOUND_RESPONSE_XML = <<<XML
@@ -143,7 +144,22 @@ XML;
         );
         $this->assertEquals(142, $result->failureReason()->code());
         $this->assertEquals("Message broken", $result->failureReason()->description());
-        $this->assertEquals(true, $result->failureReason()->permanentFailure());
+        $this->assertTrue($result->failureReason()->permanentFailure());
         $this->assertEquals("e84ccbdc-732f-1485-0b03-0aa56519e001", $result->batchId());
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function parseTemporaryFailure()
+    {
+        $parser = new MessageHeaderXmlParser();
+        $xml = str_replace(
+            "<permanentfailure>true</permanentfailure>",
+            "<permanentfailure>false</permanentfailure>",
+            self::FAILED_OUTBOUND_RESPONSE_XML
+        );
+
+        $result = $parser->parse($xml);
+
+        $this->assertFalse($result->failureReason()->permanentFailure());
     }
 }

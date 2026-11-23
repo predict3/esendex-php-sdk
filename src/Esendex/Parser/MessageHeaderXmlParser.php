@@ -56,7 +56,7 @@ class MessageHeaderXmlParser
         $result->batchId($header->batch["id"]);
         $result->deliveredAt($this->parseDateTime($header->deliveredat));
 
-        if ($header->failurereason != null) {
+        if (isset($header->failurereason)) {
             $failureReason = new FailureReason();
             $failureReason->code((int) $header->failurereason->code);
             $failureReason->description($header->failurereason->description);
@@ -80,6 +80,6 @@ class MessageHeaderXmlParser
 
     private function parseBool($value): bool
     {
-        return $value !== "false";
+        return (string) $value !== "false";
     }
 }

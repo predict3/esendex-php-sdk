@@ -70,7 +70,7 @@ class FailureReason
      */
     public function permanentFailure($value = null): ?bool
     {
-        if ($value != null) {
+        if ($value !== null) {
             $this->permanentFailure = $value;
         }
         return $this->permanentFailure;
