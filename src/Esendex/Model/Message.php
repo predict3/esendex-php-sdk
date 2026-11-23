@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -62,14 +62,10 @@ abstract class Message
     /**
      * @param string $value
      * @return string
-     * @throws \Esendex\Exceptions\ArgumentException
      */
     public function recipient($value = null): ?string
     {
         if ($value != null) {
-            if (strlen((string) $value) == 0) {
-                throw new ArgumentException('The recipient given to this message is empty');
-            }
             $this->recipient = (string)$value;
         }
         return $this->recipient;
@@ -109,7 +105,7 @@ abstract class Message
      */
     public function batchId($value = null): ?string
     {
-        if ($value != null) {        
+        if ($value != null) {
             $this->batchId = (string)$value;
         }
         return $this->batchId;

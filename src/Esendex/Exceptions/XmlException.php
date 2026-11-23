@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,22 +36,4 @@ namespace Esendex\Exceptions;
 
 class XmlException extends EsendexException
 {
-    private string $xml;
-
-    /**
-     * @param string $message
-     * @param int $code
-     * @param string $xml, The XML string that failed parsing
-     */
-    public function __construct($message, $code = 0, $xml = '')
-    {
-        parent::__construct($message, $code);
-
-        $this->xml = htmlspecialchars((string) $xml, ENT_QUOTES);
-    }
-
-    public function __toString(): string
-    {
-        return parent::__toString() . "XML:\n{$this->xml}";
-    }
 }

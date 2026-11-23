@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,51 +34,42 @@
  */
 namespace Esendex;
 
+use Esendex\Authentication\IAuthentication;
+use Esendex\Http\HttpClient;
+use Esendex\Http\IHttp;
+use Esendex\Http\UriBuilder;
+use Esendex\Model\SentMessagesPage;
+use Esendex\Parser\MessageHeaderXmlParser;
+use Esendex\Parser\SentMessagesXmlParser;
+
 class SentMessagesService
 {
     const SENT_MESSAGES_SERVICE = 'messageheaders';
     const SENT_MESSAGES_SERVICE_VERSION = 'v1.0';
 
-    private Authentication\IAuthentication $authentication;
-    private Http\IHttp $httpClient;
-    private Parser\SentMessagesXmlParser $parser;
+    private IAuthentication $authentication;
+    private IHttp $httpClient;
+    private SentMessagesXmlParser $parser;
 
-    /**
-     * @param Authentication\IAuthentication $authentication
-     * @param Http\IHttp $httpClient
-     * @param Parser\SentMessagesXmlParser $parser
-     */
     public function __construct(
-        Authentication\IAuthentication $authentication,
-        ?Http\IHttp $httpClient = null,
-        ?Parser\SentMessagesXmlParser $parser = null
+        IAuthentication $authentication,
+        ?IHttp $httpClient = null,
+        ?SentMessagesXmlParser $parser = null
     ) {
         $this->authentication = $authentication;
-        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
-        $this->parser = $parser ?? new Parser\SentMessagesXmlParser(new Parser\MessageHeaderXmlParser());
+        $this->httpClient = $httpClient ?? new HttpClient(true);
+        $this->parser = $parser ?? new SentMessagesXmlParser(new MessageHeaderXmlParser());
     }
 
     /**
-     * @param array $options
-     * @return Model\SentMessagesPage
+     * Sent messages of the account.
      */
-    public function loadMessages(array $options): Model\SentMessagesPage
+    public function loadMessages(array $options): SentMessagesPage
     {
-        $uri = Http\UriBuilder::serviceUri(
-            self::SENT_MESSAGES_SERVICE_VERSION,
-            self::SENT_MESSAGES_SERVICE,
-            null,
-            $this->httpClient->isSecure()
-        );
-
         $options['accountreference'] = $this->authentication->accountReference();
-        $uri .= "?" . Http\UriBuilder::buildQuery($options);
-        
-        $data = $this->httpClient->get(
-            $uri,
-            $this->authentication
-        );
+        $uri = UriBuilder::serviceUri(self::SENT_MESSAGES_SERVICE_VERSION, self::SENT_MESSAGES_SERVICE, null, $this->httpClient->isSecure())
+            . '?' . UriBuilder::buildQuery($options);
 
-        return $this->parser->parse($data);
+        return $this->parser->parse($this->httpClient->get($uri, $this->authentication));
     }
 }

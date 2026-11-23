@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -68,12 +68,10 @@ class SentMessagesPage implements \ArrayAccess, \Countable, \Iterator
 
     public function offsetGet(mixed $offset): mixed
     {
-        return isset($this->messages[$offset])
-            ? $this->messages[$offset]
-            : null;
+        return $this->messages[$offset] ?? null;
     }
 
-    public function offsetSet(mixed $offset,mixed $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if (!is_null($offset)) {
             throw new \Esendex\Exceptions\ArgumentException("SentMessagesPage does not support explicitly set offsets");

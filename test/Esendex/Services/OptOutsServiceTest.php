@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -71,7 +71,7 @@ class OptOutsServiceTest extends \PHPUnit\Framework\TestCase
         $this->httpUtil->expects($this->any())
             ->method("isSecure")
             ->willReturn(true);
-        
+
         $this->parser = $this->getMockBuilder("\\Esendex\\Parser\\OptOutXmlParser")
             ->disableOriginalConstructor()
             ->getMock();
@@ -80,6 +80,7 @@ class OptOutsServiceTest extends \PHPUnit\Framework\TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations]
     function add()
     {
         $expectedRequest = "<optout><accountreference>EX123456</accountreference><from><phonenumber>447712345678</phonenumber><from><optout>";
@@ -88,7 +89,7 @@ class OptOutsServiceTest extends \PHPUnit\Framework\TestCase
         $this->parser->expects($this->any())
             ->method("encodePostRequest")
             ->willReturn($expectedRequest);
-            
+
         $this->httpUtil
             ->expects($this->once())
             ->method("post")
@@ -100,13 +101,13 @@ class OptOutsServiceTest extends \PHPUnit\Framework\TestCase
             $this->equalTo($expectedRequest)
         )
             ->willReturn(true);
-            
+
         $this->parser->expects($this->any())
             ->method("parsePostResponse")
             ->willReturn($expectedOptOut);
 
         $result = $this->service->add($this->reference, $mobileNumber);
-        
+
         $this->assertSame($expectedOptOut, $result);
     }
 }

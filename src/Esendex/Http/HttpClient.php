@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,28 +33,15 @@
  * @link       https://github.com/esendex/esendex-php-sdk
  */
 namespace Esendex\Http;
+
 use Esendex\Authentication\IAuthentication;
+use Esendex\Model\Api;
 
 class HttpClient implements IHttp
 {
-    private static string $userAgent;
-    private static string|false $certificateBundle;
+    private const CA_BUNDLE = __DIR__ . '/../../ca-bundle.pem';
 
-    public static function init(): void
-    {
-        $hostInfo = php_uname("s") . " " . php_uname("v") . "; " . php_uname("m");
-        $agent = "esendex-php-sdk/" . \Esendex\Model\Api::getVersion() . " ({$hostInfo})";
-        $agent .= " PHP/" . PHP_VERSION . " (" . PHP_OS . ")";
-        $curlVersion = \curl_version();
-        if (isset($curlVersion["version"])) {
-            $agent .= " curl/" . $curlVersion["version"];
-        }
-        self::$userAgent = $agent;
-        self::$certificateBundle = realpath(dirname(__FILE__) . '/../../ca-bundle.pem');
-        if (empty(self::$certificateBundle)) {
-            echo "WARN: Could not locate CA Bundle. Secure web requests will fail";
-        }
-    }
+    private static ?string $userAgent = null;
 
     private bool $isSecure;
 
@@ -65,7 +52,7 @@ class HttpClient implements IHttp
 
     public function isSecure($secure = null): bool
     {
-        if (isset($secure) && is_bool($secure)) {
+        if (is_bool($secure)) {
             $this->isSecure = $secure;
         }
         return $this->isSecure;
@@ -73,69 +60,74 @@ class HttpClient implements IHttp
 
     public function get($url, IAuthentication $authentication): string
     {
-        $results = $this->request($url, $authentication, 'GET');
-
-        return $results['data'];
+        return $this->request($url, $authentication, 'GET');
     }
 
     public function post($url, IAuthentication $authentication, $data): string
     {
-        $results = $this->request($url, $authentication, 'POST', $data);
-
-        return $results['data'];
+        return $this->request($url, $authentication, 'POST', $data);
     }
-    
-    private function request(string $url, IAuthentication $authentication, string $method, $data = null, string $contentType = "application/xml"): array
+
+    private function request(string $url, IAuthentication $authentication, string $method, $data = null): string
     {
-        $httpHeaders = ["Authorization: {$authentication->getEncodedValue()}"];
+        $headers = ["Authorization: {$authentication->getEncodedValue()}"];
 
-        $curlHandle = \curl_init();
-
-        \curl_setopt($curlHandle, CURLOPT_URL, $url);
-        \curl_setopt($curlHandle, CURLOPT_FAILONERROR, false);
-        \curl_setopt($curlHandle, CURLOPT_FOLLOWLOCATION, true); // Allow redirects.
-        \curl_setopt($curlHandle, CURLOPT_RETURNTRANSFER, true);
-        \curl_setopt($curlHandle, CURLOPT_TIMEOUT, 30);
-        \curl_setopt($curlHandle, CURLOPT_HEADER, false);
-        \curl_setopt($curlHandle, CURLOPT_CAINFO, self::$certificateBundle);
-        \curl_setopt($curlHandle, CURLOPT_USERAGENT, self::$userAgent);
-        \curl_setopt($curlHandle, CURLOPT_CUSTOMREQUEST, $method);
-        if ($method == 'PUT' || $method == 'POST') {
-            \curl_setopt($curlHandle, CURLOPT_POSTFIELDS, $data);
+        $curl = \curl_init();
+        \curl_setopt_array($curl, [
+            CURLOPT_URL => $url,
+            CURLOPT_FAILONERROR => false,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HEADER => false,
+            CURLOPT_CAINFO => self::CA_BUNDLE,
+            CURLOPT_USERAGENT => self::userAgent(),
+            CURLOPT_CUSTOMREQUEST => $method,
+        ]);
+        if ($method === 'POST') {
+            \curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
             if (strlen((string) $data) == 0) {
-                $httpHeaders[] = 'Content-Length: 0';
+                $headers[] = 'Content-Length: 0';
             }
-            $httpHeaders[] = "Content-Type: {$contentType}; charset=utf-8";
+            $headers[] = 'Content-Type: application/xml; charset=utf-8';
         }
-        \curl_setopt($curlHandle, CURLOPT_HTTPHEADER, $httpHeaders);
+        \curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
-        $result = \curl_exec($curlHandle);
-        $curlInfo = \curl_getinfo($curlHandle);
+        $body = \curl_exec($curl);
+        $info = \curl_getinfo($curl);
 
-        $results = [];
-        $results['data'] = $result;
-        $results['statuscode'] = $curlInfo["http_code"];
-
-        if ($results['statuscode'] < 200 || $results['statuscode'] >= 300) {
-            throw $this->getHttpException($results, $curlInfo);
+        if ($info['http_code'] < 200 || $info['http_code'] >= 300) {
+            throw $this->getHttpException($info['http_code'], $body, $info);
         }
 
-        $results['url'] = $curlInfo['url'];
-        return $results;
+        return $body;
     }
 
-    private function getHttpException(array $result, ?array $info = null): \Exception
+    private function getHttpException(int $httpCode, string|false $body, array $info): \Exception
     {
-        $http_code = $result["statuscode"];
-        $data = $result["data"];
-        $error_message = strlen((string) $data) != 0 && $data != $http_code
-            ? $data
-            : "The requested URL returned error: {$http_code}";
-        return match ($http_code) {
-            400, 401, 402, 403, 404, 405, 408, 500, 501, 503 => new HttpException($error_message, $http_code, $info),
-            default => new \Exception("An unexpected error occurred processing the web request", $http_code),
+        $message = strlen((string) $body) != 0 && $body != $httpCode
+            ? $body
+            : "The requested URL returned error: {$httpCode}";
+
+        return match ($httpCode) {
+            400, 401, 402, 403, 404, 405, 408, 500, 501, 503 => new HttpException($message, $httpCode, $info),
+            default => new \Exception("An unexpected error occurred processing the web request", $httpCode),
         };
     }
-}
 
-HttpClient::init();
+    private static function userAgent(): string
+    {
+        if (self::$userAgent === null) {
+            $agent = "esendex-php-sdk/" . Api::getVersion()
+                . " (" . php_uname("s") . " " . php_uname("v") . "; " . php_uname("m") . ")"
+                . " PHP/" . PHP_VERSION . " (" . PHP_OS . ")";
+            $curlVersion = \curl_version();
+            if (isset($curlVersion["version"])) {
+                $agent .= " curl/" . $curlVersion["version"];
+            }
+            self::$userAgent = $agent;
+        }
+
+        return self::$userAgent;
+    }
+}

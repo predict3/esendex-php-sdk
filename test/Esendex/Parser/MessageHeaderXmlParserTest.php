@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -40,7 +40,7 @@ class MessageHeaderXmlParserTest extends \PHPUnit\Framework\TestCase
 {
     const OUTBOUND_RESPONSE_XML = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
-<messageheader id="a22702be-881e-43d9-9790-7646a95335f6" 
+<messageheader id="a22702be-881e-43d9-9790-7646a95335f6"
                uri="https://api.esendex.com/v1.0/messageheaders/a22702be-881e-43d9-9790-7646a95335f6"
                xmlns="http://api.esendex.com/ns/">
     <batch id="e84ccbdc-732f-1485-0b03-0aa56519e001" uri="https://api.esendex.com/v1.0/messagebatches/e84ccbdc-732f-1485-0b03-0aa56519e001" />
@@ -72,7 +72,7 @@ XML;
         $parser = new MessageHeaderXmlParser();
 
         $result = $parser->parse(self::OUTBOUND_RESPONSE_XML);
-        
+
         $this->assertInstanceOf("\\Esendex\\Model\\SentMessage", $result);
 
         $this->assertEquals("a22702be-881e-43d9-9790-7646a95335f6", $result->id());
@@ -88,7 +88,7 @@ XML;
 
         $this->assertEquals("e84ccbdc-732f-1485-0b03-0aa56519e001", $result->batchId());
     }
-    
+
     const FAILED_OUTBOUND_RESPONSE_XML = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
 <messageheader id="a22702be-881e-43d9-9790-7646a95335f6"
@@ -100,7 +100,7 @@ XML;
     <sentat>2013-03-06T13:19:20.177Z</sentat>
     <laststatusat>2013-03-06T13:20:00Z</laststatusat>
     <submittedat>2013-03-06T13:18:25.437Z</submittedat>
-    <batch id="e84ccbdc-732f-1485-0b03-0aa56519e001" uri="https://api.esendex.com/v1.0/messagebatches/e84ccbdc-732f-1485-0b03-0aa56519e001" />    
+    <batch id="e84ccbdc-732f-1485-0b03-0aa56519e001" uri="https://api.esendex.com/v1.0/messagebatches/e84ccbdc-732f-1485-0b03-0aa56519e001" />
     <type>SMS</type>
     <to>
         <phonenumber>447123456789</phonenumber>
@@ -128,7 +128,7 @@ XML;
         $parser = new MessageHeaderXmlParser();
 
         $result = $parser->parse(self::FAILED_OUTBOUND_RESPONSE_XML);
-        
+
         $this->assertInstanceOf("\\Esendex\\Model\\SentMessage", $result);
 
         $this->assertEquals("a22702be-881e-43d9-9790-7646a95335f6", $result->id());

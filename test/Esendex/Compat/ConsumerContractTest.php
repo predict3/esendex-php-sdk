@@ -115,11 +115,11 @@ class ConsumerContractTest extends TestCase
         // php-lib classifies failures on getCode(): 4xx except 408 => rejected, anything else => unknown
         $toException = new \ReflectionMethod(HttpClient::class, 'getHttpException');
 
-        $badRequest = $toException->invoke(new HttpClient(), ['statuscode' => 400, 'data' => 'Bad request']);
+        $badRequest = $toException->invoke(new HttpClient(), 400, 'Bad request', []);
         $this->assertInstanceOf(EsendexException::class, $badRequest);
         $this->assertSame(400, $badRequest->getCode());
 
-        $unknown = $toException->invoke(new HttpClient(), ['statuscode' => 418, 'data' => '']);
+        $unknown = $toException->invoke(new HttpClient(), 418, '', []);
         $this->assertSame(418, $unknown->getCode());
     }
 

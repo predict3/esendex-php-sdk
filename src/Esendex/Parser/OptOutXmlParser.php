@@ -36,8 +36,8 @@
 namespace Esendex\Parser;
 
 use Esendex\Exceptions\ArgumentException;
-use Esendex\Model\OptOut;
 use Esendex\Model\Api;
+use Esendex\Model\OptOut;
 use Esendex\Model\OptOutsPage;
 
 class OptOutXmlParser
@@ -48,30 +48,29 @@ class OptOutXmlParser
         $result->id($optOut["id"]);
         $result->from($optOut->from);
         $result->accountReference($optOut->accountreference);
-        $result->receivedAt($this->parseDateTime($optOut->receivedat));
+        $result->receivedAt(new \DateTime((string) $optOut->receivedat));
 
         return $result;
     }
 
     public function parsePostResponse($xml): OptOut
     {
-        $response = simplexml_load_string($xml);
-        return $this->parseOptOut($response->optout);
+        return $this->parseOptOut(simplexml_load_string($xml)->optout);
     }
 
     public function encodePostRequest($accountReference, $phoneNumber): string
     {
-        if (strlen((string) $phoneNumber) < 1)
+        if (strlen((string) $phoneNumber) < 1) {
             throw new ArgumentException("Recipient is invalid");
-        if (strlen((string) $accountReference) < 1)
+        }
+        if (strlen((string) $accountReference) < 1) {
             throw new ArgumentException("Account reference is invalid");
+        }
 
         $doc = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><optout />", 0, false, Api::NS);
         $doc->addAttribute("xmlns", Api::NS);
         $doc->accountreference = $accountReference;
-
-        $child = $doc->addChild("from");
-        $child->phonenumber = $phoneNumber;
+        $doc->addChild("from")->phonenumber = $phoneNumber;
 
         return $doc->asXML();
     }
@@ -79,21 +78,12 @@ class OptOutXmlParser
     public function parseMultipleResult($xml): OptOutsPage
     {
         $response = simplexml_load_string($xml);
+
         $optOuts = [];
         foreach ($response->optout as $optOut) {
-            $parsedOptOut = $this->parseOptOut($optOut);
-            $optOuts[] = $parsedOptOut;
+            $optOuts[] = $this->parseOptOut($optOut);
         }
 
-        $result = new OptOutsPage($response["startindex"], $response["totalcount"], $optOuts);
-
-        return $result;
-    }
-
-    private function parseDateTime($value): \DateTime
-    {
-        $array = (array) $value;
-        $date = $array[0];
-        return new \DateTime($date);
+        return new OptOutsPage($response["startindex"], $response["totalcount"], $optOuts);
     }
 }

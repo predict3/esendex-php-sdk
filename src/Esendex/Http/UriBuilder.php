@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -37,24 +37,16 @@ namespace Esendex\Http;
 class UriBuilder
 {
     const HOST = "api.esendex.com";
-    private static string $url_separator;
-
-    public static function init(): void
-    {
-        self::$url_separator = (string) ini_get('arg_separator.output');
-    }
 
     public static function serviceUri($version, $resource, ?array $parts = null, $secure = true): string
     {
-        $scheme = ($secure) ? "https" : "http";
-
+        $scheme = $secure ? "https" : "http";
         $result = "{$scheme}://" . self::HOST . "/{$version}/{$resource}";
-        if (isset($parts)) {
-            foreach ($parts as $part) {
-                $encodedPart = rawurlencode($part);
-                $result .= "/{$encodedPart}";
-            }
+
+        foreach ($parts ?? [] as $part) {
+            $result .= "/" . rawurlencode($part);
         }
+
         return $result;
     }
 
@@ -65,8 +57,7 @@ class UriBuilder
                 $params[$key] = $value->format(\DateTime::ISO8601);
             }
         }
-        
-        return http_build_query($params, '', self::$url_separator, PHP_QUERY_RFC3986);
+
+        return http_build_query($params, '', null, PHP_QUERY_RFC3986);
     }
 }
-UriBuilder::init();

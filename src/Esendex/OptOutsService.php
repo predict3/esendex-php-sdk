@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2016, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,92 +34,63 @@
  */
 namespace Esendex;
 
+use Esendex\Authentication\IAuthentication;
+use Esendex\Http\HttpClient;
+use Esendex\Http\IHttp;
+use Esendex\Http\UriBuilder;
+use Esendex\Model\OptOut;
+use Esendex\Model\OptOutsPage;
+use Esendex\Parser\OptOutXmlParser;
+
 class OptOutsService
 {
-    private Authentication\IAuthentication $authentication;
-    private Http\IHttp $httpClient;
-    private Parser\OptOutXmlParser $parser;
-    
     const SERVICE = "optouts";
     const SERVICE_VERSION = "v1.0";
 
-    /**
-     * @param Authentication\IAuthentication $authentication
-     * @param Http\IHttp $httpClient
-     */
+    private IAuthentication $authentication;
+    private IHttp $httpClient;
+    private OptOutXmlParser $parser;
+
     public function __construct(
-        Authentication\IAuthentication $authentication,
-        ?Http\IHttp $httpClient = null,
-        ?Parser\OptOutXmlParser $parser = null
+        IAuthentication $authentication,
+        ?IHttp $httpClient = null,
+        ?OptOutXmlParser $parser = null
     ) {
         $this->authentication = $authentication;
-        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
-        
-        $this->parser = $parser ?? new Parser\OptOutXmlParser();
+        $this->httpClient = $httpClient ?? new HttpClient(true);
+        $this->parser = $parser ?? new OptOutXmlParser();
     }
 
     /**
-     * @param string $accountReference
-     * @param string $mobileNumber
-     * @return Model\OptOut
+     * Registers a phone number as opted out: the account will no longer send it SMS.
      */
-    public function add($accountReference, $mobileNumber): Model\OptOut
+    public function add($accountReference, $mobileNumber): OptOut
     {
-        $uri = Http\UriBuilder::serviceUri(
-            self::SERVICE_VERSION,
-            self::SERVICE,
-            null,
-            $this->httpClient->isSecure()
-        );
-        
-        $xmlRequest = $this->parser->encodePostRequest($accountReference, $mobileNumber);
-        
-        $xmlResult = $this->httpClient->post(
-                         $uri,
-                         $this->authentication,
-                         $xmlRequest
-                     );
-        
-        return $this->parser->parsePostResponse($xmlResult);
+        $uri = UriBuilder::serviceUri(self::SERVICE_VERSION, self::SERVICE, null, $this->httpClient->isSecure());
+        $request = $this->parser->encodePostRequest($accountReference, $mobileNumber);
+
+        return $this->parser->parsePostResponse($this->httpClient->post($uri, $this->authentication, $request));
     }
-    
+
     /**
-     * @param string $pageNumber
-     * @param string $pageSize
-     * @return array
+     * Opt-outs of the authenticated account, page by page (first page is 1, 15 opt-outs per page by default).
      */
-    public function getMyAccountReference($pageNumber = null, $pageSize = null): Model\OptOutsPage
+    public function getMyAccountReference($pageNumber = null, $pageSize = null): OptOutsPage
     {
-        if($pageNumber == null)
-        {
+        if ($pageNumber == null) {
             $pageNumber = 1;
         }
-        if($pageSize == null)
-        {
+        if ($pageSize == null) {
             $pageSize = 15;
         }
 
-        $startIndex = ($pageNumber-1)*$pageSize;
+        $uri = UriBuilder::serviceUri(self::SERVICE_VERSION, self::SERVICE, null, $this->httpClient->isSecure())
+            . '?' . UriBuilder::buildQuery([
+                'startIndex' => ($pageNumber - 1) * $pageSize,
+                'count' => $pageSize,
+                'accountreference' => $this->authentication->accountReference(),
+            ]);
 
-        $uri = Http\UriBuilder::serviceUri(
-            self::SERVICE_VERSION,
-            self::SERVICE,
-            null,
-            $this->httpClient->isSecure()
-        );
-
-        $query = array();
-        $query["startIndex"] = $startIndex;
-        $query["count"] = $pageSize;
-        $query["accountreference"] = $this->authentication->accountReference();
-        $uri .= "?" . Http\UriBuilder::buildQuery($query);
-
-        $xmlResult = $this->httpClient->get(
-            $uri,
-            $this->authentication
-        );
-
-        return $this->parser->parseMultipleResult($xmlResult);
+        return $this->parser->parseMultipleResult($this->httpClient->get($uri, $this->authentication));
     }
-
 }

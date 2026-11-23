@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,6 +34,15 @@
  */
 namespace Esendex;
 
+use Esendex\Authentication\IAuthentication;
+use Esendex\Exceptions\EsendexException;
+use Esendex\Http\HttpClient;
+use Esendex\Http\IHttp;
+use Esendex\Http\UriBuilder;
+use Esendex\Model\DispatchMessage;
+use Esendex\Model\ResultItem;
+use Esendex\Parser\DispatchXmlParser;
+
 class DispatchService
 {
     const DISPATCH_SERVICE = "messagedispatcher";
@@ -41,104 +50,41 @@ class DispatchService
     const ACCOUNTS_SERVICE = "accounts";
     const ACCOUNTS_SERVICE_VERSION = "v1.0";
 
-    private Authentication\IAuthentication $authentication;
-    private Http\IHttp $httpClient;
-    private Parser\DispatchXmlParser $parser;
+    private IAuthentication $authentication;
+    private IHttp $httpClient;
+    private DispatchXmlParser $parser;
 
-    /**
-     * @param Authentication\IAuthentication $authentication
-     * @param Http\IHttp $httpClient
-     * @param Parser\DispatchXmlParser $parser
-     */
     public function __construct(
-        Authentication\IAuthentication $authentication,
-        ?Http\IHttp $httpClient = null,
-        ?Parser\DispatchXmlParser $parser = null
+        IAuthentication $authentication,
+        ?IHttp $httpClient = null,
+        ?DispatchXmlParser $parser = null
     ) {
         $this->authentication = $authentication;
-        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
-        $this->parser = $parser ?? new Parser\DispatchXmlParser($authentication->accountReference());
+        $this->httpClient = $httpClient ?? new HttpClient(true);
+        $this->parser = $parser ?? new DispatchXmlParser($authentication->accountReference());
     }
 
-    /**
-     * @param Model\DispatchMessage $message
-     * @return Model\ResultItem
-     * @throws Exceptions\EsendexException
-     */
-    public function send(Model\DispatchMessage $message): Model\ResultItem
+    public function send(DispatchMessage $message): ResultItem
     {
-        $xml = $this->parser->encode($message);
-        $uri = Http\UriBuilder::serviceUri(
-            self::DISPATCH_SERVICE_VERSION,
-            self::DISPATCH_SERVICE,
-            null,
-            $this->httpClient->isSecure()
-        );
-
-        $result = $this->httpClient->post(
-            $uri,
-            $this->authentication,
-            $xml
-        );
-
-        $arr = $this->parser->parse($result);
-
-        if (count($arr) >= 1) {
-            return $arr[0];
-        } else {
-            throw new Exceptions\EsendexException("Error parsing the dispatch result", null, ['data_returned' => $result]);
-        }
+        return $this->dispatch($this->parser->encode($message))[0];
     }
 
-    /**
-     * @param array of Model\DispatchMessage $messages
-     * @return array of Model\ResultItem
-     * @throws Exceptions\EsendexException
-     */
     public function sendMultiple(array $messages): array
     {
-        $xml = $this->parser->encodeMultiple($messages);
-        $uri = Http\UriBuilder::serviceUri(
-            self::DISPATCH_SERVICE_VERSION,
-            self::DISPATCH_SERVICE,
-            null,
-            $this->httpClient->isSecure()
-        );
-
-        $result = $this->httpClient->post(
-            $uri,
-            $this->authentication,
-            $xml
-        );
-
-        $arr = $this->parser->parse($result);
-
-        if (count($arr) >= 1) {
-            return $arr;
-        } else {
-            throw new Exceptions\EsendexException("Error parsing the dispatch result", null, ['data_returned' => $result]);
-        }
+        return $this->dispatch($this->parser->encodeMultiple($messages));
     }
 
     /**
-     * Get the number of remaining credits for your account
-     *
-     * @return int
+     * Remaining credits of the account, or 0 when they cannot be read.
      */
     public function getCredits(): int
     {
         try {
-            $uri = Http\UriBuilder::serviceUri(
-                self::ACCOUNTS_SERVICE_VERSION,
-                self::ACCOUNTS_SERVICE,
-                null,
-                $this->httpClient->isSecure()
-            );
+            $uri = UriBuilder::serviceUri(self::ACCOUNTS_SERVICE_VERSION, self::ACCOUNTS_SERVICE, null, $this->httpClient->isSecure());
+            $accounts = new \SimpleXMLElement($this->httpClient->get($uri, $this->authentication));
 
-            $xml = $this->httpClient->get($uri, $this->authentication);
-            $accounts = new \SimpleXMLElement($xml);
             foreach ($accounts->account as $account) {
-                if (strcasecmp($account->reference, $this->authentication->accountReference()) == 0) {
+                if (strcasecmp((string) $account->reference, $this->authentication->accountReference()) === 0) {
                     return intval($account->messagesremaining, 10);
                 }
             }
@@ -146,5 +92,18 @@ class DispatchService
         } catch (\Exception $e) {
             return 0;
         }
+    }
+
+    private function dispatch(string $xml): array
+    {
+        $uri = UriBuilder::serviceUri(self::DISPATCH_SERVICE_VERSION, self::DISPATCH_SERVICE, null, $this->httpClient->isSecure());
+        $response = $this->httpClient->post($uri, $this->authentication, $xml);
+
+        $results = $this->parser->parse($response);
+        if (count($results) === 0) {
+            throw new EsendexException("Error parsing the dispatch result", null, ['data_returned' => $response]);
+        }
+
+        return $results;
     }
 }

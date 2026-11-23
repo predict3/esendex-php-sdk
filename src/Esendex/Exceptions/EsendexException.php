@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -55,18 +55,12 @@ class EsendexException extends \Exception
 
     public function __toString(): string
     {
-        $error = [
+        return print_r([
             'file' => $this->getFile(),
             'line' => $this->getLine(),
             'code' => $this->getCode(),
             'message' => $this->getMessage(),
             'stacktrace' => substr($this->getTraceAsString(), 0, 400),
-        ];
-
-        if ($this->exceptionInfo != null) {
-            array_merge($error, $this->exceptionInfo());
-        }
-
-        return print_r($error, true);
+        ], true);
     }
 }

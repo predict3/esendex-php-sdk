@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,51 +34,39 @@
  */
 namespace Esendex;
 
+use Esendex\Authentication\IAuthentication;
+use Esendex\Http\HttpClient;
+use Esendex\Http\IHttp;
+use Esendex\Http\UriBuilder;
+use Esendex\Model\SentMessage;
+use Esendex\Parser\MessageHeaderXmlParser;
+
 class MessageHeaderService
 {
     const SERVICE = "messageheaders";
     const SERVICE_VERSION = "v1.0";
 
-    private Authentication\IAuthentication $authentication;
-    private Http\IHttp $httpClient;
-    private Parser\MessageHeaderXmlParser $parser;
+    private IAuthentication $authentication;
+    private IHttp $httpClient;
+    private MessageHeaderXmlParser $parser;
 
-    /**
-     * @param Authentication\IAuthentication $authentication
-     * @param Http\IHttp $httpClient
-     * @param Parser\MessageHeaderXmlParser $parser
-     */
     public function __construct(
-        Authentication\IAuthentication $authentication,
-        ?Http\IHttp $httpClient = null,
-        ?Parser\MessageHeaderXmlParser $parser = null
-    )
-    {
+        IAuthentication $authentication,
+        ?IHttp $httpClient = null,
+        ?MessageHeaderXmlParser $parser = null
+    ) {
         $this->authentication = $authentication;
-        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
-        $this->parser = $parser ?? new Parser\MessageHeaderXmlParser();
+        $this->httpClient = $httpClient ?? new HttpClient(true);
+        $this->parser = $parser ?? new MessageHeaderXmlParser();
     }
 
     /**
-     * Get detailed information about a message from it's messageId.
-     *
-     * @param $messageId
-     * @return Model\SentMessage
+     * A sent message, with its delivery status.
      */
-    public function message($messageId): Model\SentMessage
+    public function message($messageId): SentMessage
     {
-        $uri = Http\UriBuilder::serviceUri(
-            self::SERVICE_VERSION,
-            self::SERVICE,
-            array($messageId),
-            $this->httpClient->isSecure()
-        );
+        $uri = UriBuilder::serviceUri(self::SERVICE_VERSION, self::SERVICE, [$messageId], $this->httpClient->isSecure());
 
-        $result = $this->httpClient->get(
-            $uri,
-            $this->authentication
-        );
-
-        return $this->parser->parse($result);
+        return $this->parser->parse($this->httpClient->get($uri, $this->authentication));
     }
 }
