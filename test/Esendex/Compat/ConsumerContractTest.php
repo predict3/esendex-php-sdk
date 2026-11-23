@@ -8,7 +8,7 @@ use Esendex\Exceptions\ArgumentException;
 use Esendex\Exceptions\EsendexException;
 use Esendex\Http\HttpClient;
 use Esendex\Http\IHttp;
-use Esendex\Http\UnauthorisedException;
+use Esendex\Http\HttpException;
 use Esendex\MessageBatchesService;
 use Esendex\MessageHeaderService;
 use Esendex\Model\DispatchMessage;
@@ -137,7 +137,7 @@ class ConsumerContractTest extends TestCase
         $this->assertSame(0, (new DispatchService($otherAccount, $this->fakeHttp('get', $accounts)))->getCredits());
 
         $failing = $this->createStub(IHttp::class);
-        $failing->method('get')->willThrowException(new UnauthorisedException('no', 401));
+        $failing->method('get')->willThrowException(new HttpException('no', 401));
         $this->assertSame(0, (new DispatchService($this->authentication, $failing))->getCredits());
     }
 

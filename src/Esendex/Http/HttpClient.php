@@ -131,31 +131,10 @@ class HttpClient implements IHttp
         $error_message = strlen((string) $data) != 0 && $data != $http_code
             ? $data
             : "The requested URL returned error: {$http_code}";
-        switch ($http_code) {
-            case 400:
-                return new BadRequestException($error_message, $http_code, $info);
-            case 401:
-                return new UnauthorisedException($error_message, $http_code, $info);
-            case 402:
-                return new PaymentRequiredException($error_message, $http_code, $info);
-            case 403:
-                return new UserCredentialsException($error_message, $http_code, $info);
-            case 404:
-                return new ResourceNotFoundException($error_message, $http_code, $info);
-            case 405:
-                return new MethodNotAllowedException($error_message, $http_code, $info);
-            case 408:
-                return new RequestTimedOutException($error_message, $http_code, $info);
-            case 500:
-                return new ServerErrorException($error_message, $http_code, $info);
-            case 501:
-                return new NotImplementedException($error_message, $http_code, $info);
-            case 503:
-                return new ServiceUnavailableException($error_message, $http_code, $info);
-            default:
-                $error_message = "An unexpected error occurred processing the web request";
-                return new \Exception($error_message, $http_code);
-        }
+        return match ($http_code) {
+            400, 401, 402, 403, 404, 405, 408, 500, 501, 503 => new HttpException($error_message, $http_code, $info),
+            default => new \Exception("An unexpected error occurred processing the web request", $http_code),
+        };
     }
 }
 
