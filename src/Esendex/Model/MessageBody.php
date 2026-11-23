@@ -34,59 +34,9 @@
  */
 namespace Esendex\Model;
 
-use Esendex\Exceptions\ArgumentException;
-
 class MessageBody
 {
     const CharsetGSM = "GSM";
     const CharsetUnicode = "Unicode";
     const CharsetAuto = "Auto";
-    const CharsetNone = "";
-    
-    private ?string $bodyText = null;
-    private ?string $characterSet = null;
-
-    /**
-     * @param string $value
-     * @return string
-     */
-    public function bodyText($value = null): ?string
-    {
-        if ($value != null) {
-            $this->bodyText = (string)$value;
-        }
-        return $this->bodyText;
-    }
-
-    /**
-     * @param string $value
-     * @return string
-     * @throws \Esendex\Exceptions\ArgumentException
-     */
-    public function characterSet($value = null): ?string
-    {
-        if ($value != null) {
-            if ($value != self::CharsetGSM && $value != self::CharsetUnicode) {
-                if($value == self::CharsetNone) {
-                    $this->characterSet = "None";
-                    return null;
-                }
-            
-                throw new ArgumentException(
-                    "characterSet() value was '{$value}' and must be either '" . 
-                    self::CharsetGSM . 
-                    "' or '" . 
-                    self::CharsetUnicode . 
-                    "'"
-                );
-            }
-            $this->characterSet = (string)$value;
-        }
-        return $this->characterSet;
-    }
-
-    public function __toString(): string
-    {
-        return (string) $this->bodyText;
-    }
 }

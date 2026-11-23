@@ -46,9 +46,4 @@ class Api
     {
         return sprintf("%d.%d.%d", self::$major, self::$minor, self::$patch);
     }
-
-    public static function getApiVersion(): string
-    {
-        return sprintf("%d.%d.0", self::$major, self::$minor);
-    }
 }

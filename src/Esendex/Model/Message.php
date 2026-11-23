@@ -38,9 +38,6 @@ use Esendex\Exceptions\ArgumentException;
 
 abstract class Message
 {
-    const Inbound = 'Inbound';
-    const Outbound = 'Outbound';
-
     const SmsType = "SMS";
     const VoiceType = "Voice";
 

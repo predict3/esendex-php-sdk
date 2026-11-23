@@ -46,10 +46,9 @@ class UriBuilder
 
     public static function serviceUri($version, $resource, ?array $parts = null, $secure = true): string
     {
-        $host = defined("ESENDEX_API_HOST") ? ESENDEX_API_HOST : self::HOST;
         $scheme = ($secure) ? "https" : "http";
 
-        $result = "{$scheme}://{$host}/{$version}/{$resource}";
+        $result = "{$scheme}://" . self::HOST . "/{$version}/{$resource}";
         if (isset($parts)) {
             foreach ($parts as $part) {
                 $encodedPart = rawurlencode($part);

@@ -63,9 +63,9 @@ class MessageHeaderService
      * Get detailed information about a message from it's messageId.
      *
      * @param $messageId
-     * @return Model\InboxMessage|Model\SentMessage
+     * @return Model\SentMessage
      */
-    public function message($messageId): Model\ResultMessage
+    public function message($messageId): Model\SentMessage
     {
         $uri = Http\UriBuilder::serviceUri(
             self::SERVICE_VERSION,

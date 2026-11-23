@@ -49,21 +49,6 @@ class UriBuilderTest extends \PHPUnit\Framework\TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
-    function serviceUriWithOverrideHostReturnsExpectedUri(): void
-    {
-		define("ESENDEX_API_HOST", "api.myfakeesendex.com");
-		
-        $version = "v1.0";
-        $resource = "apple";
-        $expected = "https://" . ESENDEX_API_HOST . "/{$version}/{$resource}";
-
-        $result = UriBuilder::serviceUri($version, $resource);
-
-        $this->assertEquals($expected, $result);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
     function serviceUriReturnsExpectedUriWhenUnsecured()
     {
         $version = "v1.0";

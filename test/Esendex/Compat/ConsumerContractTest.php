@@ -32,7 +32,7 @@ class ConsumerContractTest extends TestCase
 
     private const MESSAGE_HEADER = '<messageheader id="%s"><status>%s</status><type>SMS</type>'
         . '<deliveredat>2026-03-01T10:00:04Z</deliveredat><to><phonenumber>33600000001</phonenumber></to>'
-        . '<direction>Outbound</direction><batch id="batch-1" /></messageheader>';
+        . '<batch id="batch-1" /></messageheader>';
 
     private LoginAuthentication $authentication;
 

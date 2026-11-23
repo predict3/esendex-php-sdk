@@ -34,36 +34,22 @@
  */
 namespace Esendex\Model;
 
-class SentMessage extends ResultMessage
+class SentMessage extends Message
 {
-    private ?\DateTime $submittedAt = null;
-    private ?\DateTime $sentAt = null;
+    private ?string $id = null;
     private ?\DateTime $deliveredAt = null;
-    private ?string $username = null;
     private ?FailureReason $failureReason = null;
 
     /**
-     * @param \DateTime $value
-     * @return \DateTime
+     * @param string $value
+     * @return string
      */
-    public function submittedAt($value = null): ?\DateTime
+    public function id($value = null): ?string
     {
-        if ($value instanceof \DateTime) {
-            $this->submittedAt = $value;
+        if ($value != null) {
+            $this->id = (string)$value;
         }
-        return $this->submittedAt;
-    }
-
-    /**
-     * @param \DateTime $value
-     * @return \DateTime
-     */
-    public function sentAt($value = null): ?\DateTime
-    {
-        if ($value instanceof \DateTime) {
-            $this->sentAt = $value;
-        }
-        return $this->sentAt;
+        return $this->id;
     }
 
     /**
@@ -79,20 +65,8 @@ class SentMessage extends ResultMessage
     }
 
     /**
-     * @param string $value
-     * @return string
-     */
-    public function username($value = null): ?string
-    {
-        if ($value != null) {
-            $this->username = (string)$value;
-        }
-        return $this->username;
-    }
-    
-    /**
      * @param \Esendex\Model\FailureReason $value
-     * @return \Esendex\Model\FailureReason 
+     * @return \Esendex\Model\FailureReason
      */
     public function failureReason($value = null): ?FailureReason
     {

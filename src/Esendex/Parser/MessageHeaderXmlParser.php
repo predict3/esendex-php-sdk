@@ -34,62 +34,37 @@
  */
 namespace Esendex\Parser;
 
-use Esendex\Model\Message;
-use Esendex\Model\ResultMessage;
 use Esendex\Model\SentMessage;
-use Esendex\Model\InboxMessage;
 use Esendex\Model\FailureReason;
 
 class MessageHeaderXmlParser
 {
-    public function parse($xml): ResultMessage
+    public function parse($xml): SentMessage
     {
         $header = simplexml_load_string($xml);
         return $this->parseHeader($header);
     }
 
-    public function parseHeader($header): ResultMessage
+    public function parseHeader($header): SentMessage
     {
-        $direction = $header->direction;
-        $result = ($direction == Message::Inbound)
-            ? new InboxMessage()
-            : new SentMessage();
-
+        $result = new SentMessage();
         $result->id($header["id"]);
         $result->originator($header->from->phonenumber);
         $result->recipient($header->to->phonenumber);
         $result->status($header->status);
         $result->type($header->type);
-        $result->direction($direction);
-        $result->parts($header->parts);
-        $result->bodyUri($header->body["uri"]);
-        $result->summary($header->summary);
-        $result->lastStatusAt($this->parseDateTime($header->laststatusat));
         $result->batchId($header->batch["id"]);
-        if ($direction == Message::Outbound) {
-            $result->submittedAt($this->parseDateTime($header->submittedat));
-            $result->sentAt($this->parseDateTime($header->sentat));
-            $result->deliveredAt($this->parseDateTime($header->deliveredat));
-            $result->username($header->username);
-            
-            if ($header->failurereason != null) {
-                $failureReason = new FailureReason();
-                $failureReason->code((int) $header->failurereason->code);
-                $failureReason->description($header->failurereason->description);
-                $failureReason->permanentFailure($this->parseBool($header->failurereason->permanentfailure));
-                
-                $result->failureReason($failureReason);
-            }
+        $result->deliveredAt($this->parseDateTime($header->deliveredat));
 
-        } else {
-            $result->receivedAt($this->parseDateTime($header->receivedat));
-            $readAt = $header->readat;
-            if (substr($readAt, 0, 2) != "00") {
-                $result->readAt($this->parseDateTime($readAt));
-                $result->readBy($header->readby);
-            }
+        if ($header->failurereason != null) {
+            $failureReason = new FailureReason();
+            $failureReason->code((int) $header->failurereason->code);
+            $failureReason->description($header->failurereason->description);
+            $failureReason->permanentFailure($this->parseBool($header->failurereason->permanentfailure));
+
+            $result->failureReason($failureReason);
         }
-        
+
         return $result;
     }
 
