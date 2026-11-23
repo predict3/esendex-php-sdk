@@ -71,23 +71,6 @@ print $result->id();
 print $result->uri();
 ```
 
-#### Retrieving Inbox Messages
-```php5
-$authentication = new \Esendex\Authentication\LoginAuthentication(
-    "EX000000", // Your Esendex Account Reference
-    "user@example.com", // Your login email address
-    "password" // Your password
-);
-$service = new \Esendex\InboxService($authentication);
-
-$result = $service->latest();
-
-print "Total Inbox Messages: {$result->totalCount()}";
-print "Fetched: {$result->count()}";
-foreach ($result as $message) {
-    print "Message from: {$message->originator()}, {$message->summary()}";
-}
-```
 #### Track Message Status
 ```php5
 $authentication = new \Esendex\Authentication\LoginAuthentication(
@@ -100,20 +83,63 @@ $message = $headerService->message("messageId");
 print_r($message->status());
 ```
 
-#### Retrieving Full Message Body
+#### Sending to several recipients in one batch
 ```php5
-$messageId = "unique-id-of-message";
-$authentication = new \Esendex\Authentication\LoginAuthentication(
-    "EX000000", // Your Esendex Account Reference
-    "user@example.com", // Your login email address
-    "password" // Your password
-);
-$service = new \Esendex\MessageBodyService($authentication);
+$results = $service->sendMultiple([
+    new \Esendex\Model\DispatchMessage("WebApp", "33600000001", "Hello", \Esendex\Model\Message::SmsType),
+    new \Esendex\Model\DispatchMessage("WebApp", "33600000002", "Hello", \Esendex\Model\Message::SmsType),
+]);
 
-$result = $service->getMessageBodyById($messageId);
-
-print $result;
+foreach ($results as $result) {
+    print "{$result->id()} in batch {$result->batchid()}";
+}
 ```
+
+#### Opt-outs
+```php5
+$optOutsService = new \Esendex\OptOutsService($authentication);
+
+// Register an opt-out
+$optOutsService->add("EX000000", "33600000001");
+
+// List the opt-outs of the authenticated account, page by page
+$page = $optOutsService->getMyAccountReference(1, 25);
+foreach ($page->optOuts() as $optOut) {
+    print "{$optOut->from()->phoneNumber()} at {$optOut->receivedAt()->format('c')}";
+}
+```
+
+#### Sent messages and batches
+```php5
+$sentMessages = new \Esendex\SentMessagesService($authentication);
+$page = $sentMessages->loadMessages([
+    "start" => "2026-01-01T00:00:00+00:00",
+    "finish" => "2026-02-01T00:00:00+00:00",
+    "startIndex" => 0,
+    "count" => 100,
+]);
+
+$batches = new \Esendex\MessageBatchesService($authentication);
+$messages = $batches->messages("batch-id");
+
+$credits = (new \Esendex\DispatchService($authentication))->getCredits();
+```
+
+## Scope of the Predict fork
+Since 3.8 the SDK only keeps the features used by Predict projects:
+
+| Service | Methods |
+|---|---|
+| `DispatchService` | `send`, `sendMultiple`, `getCredits` |
+| `OptOutsService` | `add`, `getMyAccountReference` |
+| `MessageBatchesService` | `messages` |
+| `MessageHeaderService` | `message` |
+| `SentMessagesService` | `loadMessages` |
+| `Http\HttpClient` | `get`, `post` |
+
+The Inbox, Account, Session, CheckAccess, MessageBody, MessageInformation and Survey services were removed.
+Class names, namespaces and method signatures of the kept API are unchanged: `test/Esendex/Compat/ConsumerContractTest.php`
+pins the calls made by the projects and must stay green.
 
 ## Would you like to know more?
 Full REST API documentation can be found @ [developers.esendex.com](http://developers.esendex.com/)
@@ -131,33 +157,13 @@ To retrieve said pre-requisites execute the following:
 $ composer.phar install
 ```
 
-A suite of tests can be found in the `test` directory. To run them use the [phing](http://www.phing.info) build utility. e.g.
+A suite of tests can be found in the `test` directory. To run them:
 ```bash
-$ php vendor/bin/phing
+$ vendor/bin/phpunit
 ```
 
-#### Credentials Test
-You can check your account credentials using a phing task we have provided. First, ensure dependencies have been installed with composer:
-```bash
-$ composer.phar install
-```
-Run the `check-access` script:
-```bash
-$ vendor/bin/phing check-access
-Buildfile: /home/developer/esendex-php-sdk/build.xml
-
-EsendexSDK > check-access:
-
-Esendex Username ? user@example.com
-Esendex Password ? secret
-Account Reference? EX000000
-
-    Account credentials OK!
-
-BUILD FINISHED
-
-Total time: 10.0000 seconds
-``` 
+`phpunit.xml` routes every HTTP request through a dead proxy (`127.0.0.1:9`) and all services are tested with a fake
+`IHttp` client: running the test suite can never send a real SMS. Never add tests that call the real Esendex API.
 
 ## Issues
 We hope you don't run into any issues but if you should please make use of the issue tracker on [github](https://github.com/esendex/esendex-php-sdk/issues) or send an email to [support@esendex.com](mailto:support@esendex.com)
