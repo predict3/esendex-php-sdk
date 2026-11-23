@@ -42,27 +42,4 @@ interface IHttp
     function get($url, IAuthentication $authentication);
 
     function post($url, IAuthentication $authentication, $data);
-    
 }
-
-class HttpException extends \Esendex\Exceptions\EsendexException {}
-
-class BadRequestException extends HttpException {}
-
-class UnauthorisedException extends HttpException {}
-
-class PaymentRequiredException extends HttpException {}
-
-class UserCredentialsException extends HttpException {}
-
-class ResourceNotFoundException extends HttpException {}
-
-class MethodNotAllowedException extends HttpException {}
-
-class RequestTimedOutException extends HttpException {}
-
-class ServerErrorException extends HttpException {}
-
-class NotImplementedException extends HttpException {}
-
-class ServiceUnavailableException extends HttpException {}

@@ -29,6 +29,7 @@ use Esendex\Model\SentMessagesPage;
 use Esendex\OptOutsService;
 use Esendex\SentMessagesService;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -142,6 +143,17 @@ class ConsumerContractTest extends TestCase
     }
 
     #[Test]
+    #[RunInSeparateProcess]
+    public function httpExceptionsAutoloadIndependently(): void
+    {
+        // A consumer may reference an HTTP exception before anything loaded IHttp.php
+        $this->assertFalse(interface_exists(IHttp::class, false));
+        $this->assertTrue(class_exists(ServerErrorException::class));
+        $this->assertTrue(class_exists(\Esendex\Http\HttpException::class));
+        $this->assertTrue(class_exists(\Esendex\Http\ServiceUnavailableException::class));
+    }
+
+    #[Test]
     public function keptExceptionHierarchy(): void
     {
         $this->assertTrue(is_subclass_of(ArgumentException::class, EsendexException::class));
@@ -234,9 +246,6 @@ class ConsumerContractTest extends TestCase
 
     public static function httpErrors(): array
     {
-        // HTTP exceptions are declared in IHttp.php: they only exist once the interface is loaded
-        interface_exists(IHttp::class);
-
         return [
             '400' => [new BadRequestException('bad', 400), 400],
             '401' => [new UnauthorisedException('unauthorised', 401), 401],
