@@ -34,17 +34,16 @@
  */
 namespace Esendex\Model;
 use Esendex\Exceptions\ArgumentException;
-use Esendex\Model\MessageBody;
 
 class DispatchMessage extends Message
 {
     const ENGLISH_LANGUAGE = "en-GB";
 
-    private $validityPeriod;
-    private $body;
-    private $language;
-    private $characterSet;
-    private $retries;
+    private ?int $validityPeriod = null;
+    private ?string $body = null;
+    private ?string $language = null;
+    private ?string $characterSet = null;
+    private ?int $retries = null;
 
     /**
      * @param string $originator
@@ -69,7 +68,7 @@ class DispatchMessage extends Message
         $this->recipient($recipient);
         $this->body($body);
         $this->type($type);
-        $this->validityperiod($validityPeriod);
+        $this->validityPeriod($validityPeriod);
         $this->language($language);
         $this->characterSet($characterSet);
         $this->retries($retries);
@@ -79,7 +78,7 @@ class DispatchMessage extends Message
      * @param int $value
      * @return int
      */
-    public function validityPeriod($value = null)
+    public function validityPeriod($value = null): ?int
     {
         if ($value != null) {
             $this->validityPeriod = (int)$value;
@@ -91,7 +90,7 @@ class DispatchMessage extends Message
      * @param string $value
      * @return string
      */
-    public function body($value = null)
+    public function body($value = null): ?string
     {
         if ($value != null) {
             $this->body = (string)$value;
@@ -106,7 +105,7 @@ class DispatchMessage extends Message
      * @param string $value
      * @return string
      */
-    public function language($value = null)
+    public function language($value = null): ?string
     {
         if ($value != null) {
             $this->language = (string)$value;
@@ -121,7 +120,7 @@ class DispatchMessage extends Message
      * @param string $value
      * @return string
      */
-    public function retries($value = null)
+    public function retries($value = null): ?int
     {
         if ($value != null) {
             $this->retries = (int)$value;
@@ -136,7 +135,7 @@ class DispatchMessage extends Message
      * @param string $value
      * @return string
      */
-    public function characterSet($value = null)
+    public function characterSet($value = null): ?string
     {
         if ($value != null) {
             if ($value != MessageBody::CharsetGSM 

@@ -39,16 +39,16 @@ use Esendex\Model\BatchesMessage;
 class BatchesMessagesXmlParser
 {
   
-    public function parse($xml)
+    public function parse($xml): array
     {
         $header = simplexml_load_string($xml);
         return $this->parseHeader($header);
     }
 
-    public function parseHeader($header)
+    public function parseHeader($header): array
     {
 
-        $result = array();
+        $result = [];
         foreach ($header->messageheader as $message) {
             $item = new BatchesMessage();
             $item->phonenumber($message->to[0]->phonenumber);

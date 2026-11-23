@@ -36,18 +36,18 @@ namespace Esendex\Model;
 
 abstract class ResultMessage extends Message
 {
-    private $id;
-    private $direction;
-    private $parts;
-    private $bodyUri;
-    private $summary;
-    private $lastStatusAt;
+    private ?string $id = null;
+    private ?string $direction = null;
+    private ?int $parts = null;
+    private ?string $bodyUri = null;
+    private ?string $summary = null;
+    private ?\DateTime $lastStatusAt = null;
 
     /**
      * @param string $value
      * @return string
      */
-    public function id($value = null)
+    public function id($value = null): ?string
     {
         if ($value != null) {
             $this->id = (string)$value;
@@ -59,7 +59,7 @@ abstract class ResultMessage extends Message
      * @param string $value
      * @return string
      */
-    public function direction($value = null)
+    public function direction($value = null): ?string
     {
         if ($value != null) {
             if ($value == self::Inbound || $value == self::Outbound) {
@@ -73,7 +73,7 @@ abstract class ResultMessage extends Message
      * @param int $parts
      * @return int
      */
-    public function parts($parts = null)
+    public function parts($parts = null): ?int
     {
         if ($parts != null) {
             $this->parts = (int)$parts;
@@ -85,7 +85,7 @@ abstract class ResultMessage extends Message
      * @param string $value
      * @return string
      */
-    public function bodyUri($value = null)
+    public function bodyUri($value = null): ?string
     {
         if ($value != null) {
             $this->bodyUri = (string)$value;
@@ -97,7 +97,7 @@ abstract class ResultMessage extends Message
      * @param string $value
      * @return string
      */
-    public function summary($value = null)
+    public function summary($value = null): ?string
     {
         if ($value != null) {
             $this->summary = (string)$value;
@@ -109,7 +109,7 @@ abstract class ResultMessage extends Message
      * @param \DateTime $value
      * @return \DateTime
      */
-    public function lastStatusAt($value = null)
+    public function lastStatusAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->lastStatusAt = $value;

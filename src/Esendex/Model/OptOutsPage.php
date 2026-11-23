@@ -36,9 +36,9 @@ namespace Esendex\Model;
 
 class OptOutsPage
 {
-    private $startIndex;
-    private $totalCount;
-    private $optOuts;
+    private int $startIndex;
+    private int $totalCount;
+    private array $optOuts;
 
     /**
      * @param $startIndex
@@ -55,7 +55,7 @@ class OptOutsPage
     /**
      * @return int
      */
-    public function startIndex()
+    public function startIndex(): int
     {
         return $this->startIndex;
     }
@@ -63,7 +63,7 @@ class OptOutsPage
     /**
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return count($this->optOuts);
     }
@@ -71,7 +71,7 @@ class OptOutsPage
     /**
      * @return int
      */
-    public function totalCount()
+    public function totalCount(): int
     {
         return $this->totalCount;
     }
@@ -79,7 +79,7 @@ class OptOutsPage
     /**
      * @return array
      */
-    public function optOuts()
+    public function optOuts(): array
     {
         return $this->optOuts;
     }

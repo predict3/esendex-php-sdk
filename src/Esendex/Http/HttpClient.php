@@ -37,10 +37,10 @@ use Esendex\Authentication\IAuthentication;
 
 class HttpClient implements IHttp
 {
-    private static $userAgent;
-    private static $certificateBundle;
+    private static string $userAgent;
+    private static string|false $certificateBundle;
 
-    public static function init()
+    public static function init(): void
     {
         $hostInfo = php_uname("s") . " " . php_uname("v") . "; " . php_uname("m");
         $agent = "esendex-php-sdk/" . \Esendex\Model\Api::getVersion() . " ({$hostInfo})";
@@ -56,14 +56,14 @@ class HttpClient implements IHttp
         }
     }
 
-    private $isSecure;
+    private bool $isSecure;
 
     public function __construct($secure = true)
     {
-        $this->isSecure = $secure;
+        $this->isSecure = (bool) $secure;
     }
 
-    public function isSecure($secure = null)
+    public function isSecure($secure = null): bool
     {
         if (isset($secure) && is_bool($secure)) {
             $this->isSecure = $secure;
@@ -71,23 +71,23 @@ class HttpClient implements IHttp
         return $this->isSecure;
     }
 
-    public function get($url, IAuthentication $authentication)
+    public function get($url, IAuthentication $authentication): string
     {
         $results = $this->request($url, $authentication, 'GET');
 
         return $results['data'];
     }
 
-    public function post($url, IAuthentication $authentication, $data)
+    public function post($url, IAuthentication $authentication, $data): string
     {
         $results = $this->request($url, $authentication, 'POST', $data);
 
         return $results['data'];
     }
     
-    private function request($url, $authentication, $method, $data = null, $contentType = "application/xml")
+    private function request(string $url, IAuthentication $authentication, string $method, $data = null, string $contentType = "application/xml"): array
     {
-        $httpHeaders = array("Authorization: {$authentication->getEncodedValue()}");
+        $httpHeaders = ["Authorization: {$authentication->getEncodedValue()}"];
 
         $curlHandle = \curl_init();
 
@@ -112,7 +112,7 @@ class HttpClient implements IHttp
         $result = \curl_exec($curlHandle);
         $curlInfo = \curl_getinfo($curlHandle);
 
-        $results = array();
+        $results = [];
         $results['data'] = $result;
         $results['statuscode'] = $curlInfo["http_code"];
 
@@ -124,11 +124,11 @@ class HttpClient implements IHttp
         return $results;
     }
 
-    private function getHttpException(array $result, ?array $info = null)
+    private function getHttpException(array $result, ?array $info = null): \Exception
     {
         $http_code = $result["statuscode"];
         $data = $result["data"];
-        $error_message = strlen($data) != 0 && $data != $http_code
+        $error_message = strlen((string) $data) != 0 && $data != $http_code
             ? $data
             : "The requested URL returned error: {$http_code}";
         switch ($http_code) {

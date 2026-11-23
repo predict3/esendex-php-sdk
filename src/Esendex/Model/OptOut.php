@@ -36,16 +36,16 @@ namespace Esendex\Model;
 
 class OptOut
 {
-    private $id;
-    private $accountReference;
-    private $from;
-    private $receivedAt;
+    private ?string $id = null;
+    private ?string $accountReference = null;
+    private ?FromAddress $from = null;
+    private ?\DateTime $receivedAt = null;
 
     /**
      * @param string $value
      * @return string
      */
-    public function id($value = null)
+    public function id($value = null): ?string
     {
         if ($value != null) {
             $this->id = (string)$value;
@@ -58,19 +58,19 @@ class OptOut
      * @return string
      */
 
-	public function receivedAt($value = null)
+    public function receivedAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->receivedAt = $value;
         }
         return $this->receivedAt;
     }
-	
+
     /**
      * @param string $value
      * @return fromAddress
      */
-    public function from($value = null)
+    public function from($value = null): ?FromAddress
     {
         if ($value != null) {
             $this->from = new FromAddress();
@@ -83,7 +83,8 @@ class OptOut
      * @param string $value
      * @return string
      */
-    public function accountReference($value = null){
+    public function accountReference($value = null): ?string
+    {
         if($value != null) {
             $this->accountReference = (string)$value;
         }

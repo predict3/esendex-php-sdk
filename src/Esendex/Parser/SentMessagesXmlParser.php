@@ -36,17 +36,14 @@ namespace Esendex\Parser;
 
 class SentMessagesXmlParser
 {
-    private $headerParser;
+    private MessageHeaderXmlParser $headerParser;
 
     public function __construct(MessageHeaderXmlParser $headerParser)
     {
-        if (is_null($headerParser))
-            throw new \Esendex\Exceptions\ArgumentException("headerParser must be set");
-
         $this->headerParser = $headerParser;
     }
 
-    public function parse($xml)
+    public function parse($xml): \Esendex\Model\SentMessagesPage
     {
         $headers = simplexml_load_string($xml);
         $result = new \Esendex\Model\SentMessagesPage($headers["startindex"], $headers["totalcount"]);

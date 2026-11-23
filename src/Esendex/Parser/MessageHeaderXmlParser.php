@@ -35,19 +35,20 @@
 namespace Esendex\Parser;
 
 use Esendex\Model\Message;
+use Esendex\Model\ResultMessage;
 use Esendex\Model\SentMessage;
 use Esendex\Model\InboxMessage;
 use Esendex\Model\FailureReason;
 
 class MessageHeaderXmlParser
 {
-    public function parse($xml)
+    public function parse($xml): ResultMessage
     {
         $header = simplexml_load_string($xml);
         return $this->parseHeader($header);
     }
 
-    public function parseHeader($header)
+    public function parseHeader($header): ResultMessage
     {
         $direction = $header->direction;
         $result = ($direction == Message::Inbound)
@@ -92,8 +93,9 @@ class MessageHeaderXmlParser
         return $result;
     }
 
-    private function parseDateTime($value)
+    private function parseDateTime($value): \DateTime|false
     {
+        $value = (string) $value;
         $value = (strlen($value) > 20)
             ? substr($value, 0, 19) . "Z"
             : $value;
@@ -101,11 +103,8 @@ class MessageHeaderXmlParser
         return \DateTime::createFromFormat(\DateTime::ISO8601, $value);
     }
     
-    private function parseBool($value) {
-       if ($value !== "false") {
-          return true;
-       } else {
-          return false;
-       }
+    private function parseBool($value): bool
+    {
+        return $value !== "false";
     }
 }

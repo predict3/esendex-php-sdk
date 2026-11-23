@@ -36,13 +36,13 @@ namespace Esendex\Model;
 
 class FromAddress
 {
-    private $phoneNumber;
+    private ?string $phoneNumber = null;
 
     /**
      * @param string $value
      * @return string
      */
-    public function phoneNumber($value = null)
+    public function phoneNumber($value = null): ?string
     {
         if ($value != null) {
             $this->phoneNumber = (string)$value;

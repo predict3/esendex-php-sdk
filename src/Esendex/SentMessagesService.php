@@ -39,9 +39,9 @@ class SentMessagesService
     const SENT_MESSAGES_SERVICE = 'messageheaders';
     const SENT_MESSAGES_SERVICE_VERSION = 'v1.0';
 
-    private $authentication;
-    private $httpClient;
-    private $parser;
+    private Authentication\IAuthentication $authentication;
+    private Http\IHttp $httpClient;
+    private Parser\SentMessagesXmlParser $parser;
 
     /**
      * @param Authentication\IAuthentication $authentication
@@ -54,19 +54,15 @@ class SentMessagesService
         ?Parser\SentMessagesXmlParser $parser = null
     ) {
         $this->authentication = $authentication;
-        $this->httpClient = (isset($httpClient))
-            ? $httpClient
-            : new Http\HttpClient(true);
-        $this->parser = (isset($parser))
-            ? $parser
-            : new Parser\SentMessagesXmlParser(new Parser\MessageHeaderXmlParser());
+        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
+        $this->parser = $parser ?? new Parser\SentMessagesXmlParser(new Parser\MessageHeaderXmlParser());
     }
 
     /**
      * @param array $options
      * @return Model\SentMessagesPage
      */
-    public function loadMessages(array $options)
+    public function loadMessages(array $options): Model\SentMessagesPage
     {
         $uri = Http\UriBuilder::serviceUri(
             self::SENT_MESSAGES_SERVICE_VERSION,

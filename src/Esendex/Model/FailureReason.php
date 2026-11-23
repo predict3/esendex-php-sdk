@@ -36,15 +36,15 @@ namespace Esendex\Model;
 
 class FailureReason
 {
-	private $code;
-	private $description;
-	private $permanentFailure;
-	
+    private ?int $code = null;
+    private $description;
+    private ?bool $permanentFailure = null;
+
     /**
      * @param int $value
      * @return int
      */
-    public function code($value = null)
+    public function code($value = null): ?int
     {
         if ($value != null) {
             $this->code = $value;
@@ -68,7 +68,7 @@ class FailureReason
      * @param bool $value
      * @return bool
      */
-    public function permanentFailure($value = null)
+    public function permanentFailure($value = null): ?bool
     {
         if ($value != null) {
             $this->permanentFailure = $value;

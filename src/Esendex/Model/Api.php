@@ -38,16 +38,16 @@ class Api
 {
     const NS = "http://api.esendex.com/ns/";
 
-    private static $major = 2;
-    private static $minor = 1;
-    private static $patch = 1;
+    private static int $major = 3;
+    private static int $minor = 8;
+    private static int $patch = 0;
 
-    public static function getVersion()
+    public static function getVersion(): string
     {
         return sprintf("%d.%d.%d", self::$major, self::$minor, self::$patch);
     }
 
-    public static function getApiVersion()
+    public static function getApiVersion(): string
     {
         return sprintf("%d.%d.0", self::$major, self::$minor);
     }

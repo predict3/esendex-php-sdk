@@ -36,9 +36,9 @@ namespace Esendex;
 
 class OptOutsService
 {
-    private $authentication;
-    private $httpClient;
-    private $parser;
+    private Authentication\IAuthentication $authentication;
+    private Http\IHttp $httpClient;
+    private Parser\OptOutXmlParser $parser;
     
     const SERVICE = "optouts";
     const SERVICE_VERSION = "v1.0";
@@ -53,13 +53,9 @@ class OptOutsService
         ?Parser\OptOutXmlParser $parser = null
     ) {
         $this->authentication = $authentication;
-        $this->httpClient = (isset($httpClient))
-            ? $httpClient
-            : new Http\HttpClient(true);
+        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
         
-        $this->parser = (isset($parser))
-            ? $parser
-            : new Parser\OptOutXmlParser();
+        $this->parser = $parser ?? new Parser\OptOutXmlParser();
     }
 
     /**
@@ -67,7 +63,7 @@ class OptOutsService
      * @param string $mobileNumber
      * @return Model\OptOut
      */
-    public function add($accountReference, $mobileNumber)
+    public function add($accountReference, $mobileNumber): Model\OptOut
     {
         $uri = Http\UriBuilder::serviceUri(
             self::SERVICE_VERSION,
@@ -92,7 +88,7 @@ class OptOutsService
      * @param string $pageSize
      * @return array
      */
-    public function getMyAccountReference($pageNumber = null, $pageSize = null)
+    public function getMyAccountReference($pageNumber = null, $pageSize = null): Model\OptOutsPage
     {
         if($pageNumber == null)
         {

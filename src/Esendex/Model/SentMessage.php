@@ -36,17 +36,17 @@ namespace Esendex\Model;
 
 class SentMessage extends ResultMessage
 {
-    private $submittedAt;
-    private $sentAt;
-    private $deliveredAt;
-    private $username;
-    private $failureReason;
+    private ?\DateTime $submittedAt = null;
+    private ?\DateTime $sentAt = null;
+    private ?\DateTime $deliveredAt = null;
+    private ?string $username = null;
+    private ?FailureReason $failureReason = null;
 
     /**
      * @param \DateTime $value
      * @return \DateTime
      */
-    public function submittedAt($value = null)
+    public function submittedAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->submittedAt = $value;
@@ -58,7 +58,7 @@ class SentMessage extends ResultMessage
      * @param \DateTime $value
      * @return \DateTime
      */
-    public function sentAt($value = null)
+    public function sentAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->sentAt = $value;
@@ -70,7 +70,7 @@ class SentMessage extends ResultMessage
      * @param \DateTime $value
      * @return \DateTime
      */
-    public function deliveredAt($value = null)
+    public function deliveredAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->deliveredAt = $value;
@@ -82,7 +82,7 @@ class SentMessage extends ResultMessage
      * @param string $value
      * @return string
      */
-    public function username($value = null)
+    public function username($value = null): ?string
     {
         if ($value != null) {
             $this->username = (string)$value;
@@ -94,7 +94,7 @@ class SentMessage extends ResultMessage
      * @param \Esendex\Model\FailureReason $value
      * @return \Esendex\Model\FailureReason 
      */
-    public function failureReason($value = null)
+    public function failureReason($value = null): ?FailureReason
     {
         if ($value != null) {
             $this->failureReason = $value;

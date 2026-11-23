@@ -36,10 +36,10 @@ namespace Esendex\Model;
 
 class SentMessagesPage implements \ArrayAccess, \Countable, \Iterator
 {
-    private $startIndex;
-    private $totalCount;
-    private $messages;
-    private $position = 0;
+    private int $startIndex;
+    private int $totalCount;
+    private array $messages = [];
+    private int $position = 0;
 
     /**
      * @param $startIndex
@@ -49,7 +49,6 @@ class SentMessagesPage implements \ArrayAccess, \Countable, \Iterator
     {
         $this->startIndex = (int)$startIndex;
         $this->totalCount = (int)$totalCount;
-        $this->messages = array();
     }
 
     public function startIndex(): int

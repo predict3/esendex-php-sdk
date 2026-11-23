@@ -36,9 +36,9 @@ namespace Esendex\Model;
 
 class ResultItem
 {
-    private $id;
-    private $uri;
-    private $batchid;
+    private string $id;
+    private string $uri;
+    private string $batchid;
 
     /**
      * @param $id
@@ -55,7 +55,7 @@ class ResultItem
     /**
      * @return string
      */
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
@@ -63,7 +63,7 @@ class ResultItem
     /**
      * @return string
      */
-    public function uri()
+    public function uri(): string
     {
         return $this->uri;
     }
@@ -71,7 +71,7 @@ class ResultItem
     /**
      * @return string
      */
-    public function batchid()
+    public function batchid(): string
     {
         return $this->batchid;
     }

@@ -36,7 +36,7 @@ namespace Esendex\Exceptions;
 
 class XmlException extends EsendexException
 {
-    private $xml;
+    private string $xml;
 
     /**
      * @param string $message
@@ -47,10 +47,10 @@ class XmlException extends EsendexException
     {
         parent::__construct($message, $code);
 
-        $this->xml = htmlspecialchars($xml, ENT_QUOTES);
+        $this->xml = htmlspecialchars((string) $xml, ENT_QUOTES);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return parent::__toString() . "XML:\n{$this->xml}";
     }

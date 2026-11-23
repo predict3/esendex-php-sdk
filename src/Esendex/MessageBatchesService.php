@@ -39,9 +39,9 @@ class MessageBatchesService
     const SERVICE = "messagebatches";
     const SERVICE_VERSION = "v1.0";
 
-    private $authentication;
-    private $httpClient;
-    private $parser;
+    private Authentication\IAuthentication $authentication;
+    private Http\IHttp $httpClient;
+    private Parser\BatchesMessagesXmlParser $parser;
 
     /**
      * @param Authentication\IAuthentication $authentication
@@ -55,12 +55,8 @@ class MessageBatchesService
     )
     {
         $this->authentication = $authentication;
-        $this->httpClient = (isset($httpClient))
-            ? $httpClient
-            : new Http\HttpClient(true);
-        $this->parser = (isset($parser))
-            ? $parser
-            : new Parser\BatchesMessagesXmlParser();
+        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
+        $this->parser = $parser ?? new Parser\BatchesMessagesXmlParser();
     }
 
     /**
@@ -71,12 +67,12 @@ class MessageBatchesService
      * @param int $pageSize
      * @return array
      */
-    public function messages($batch_id, $startIndex = 0, $pageSize = 15)
+    public function messages($batch_id, $startIndex = 0, $pageSize = 15): array
     {
         $uri = Http\UriBuilder::serviceUri(
             self::SERVICE_VERSION,
             self::SERVICE,
-            array($batch_id, 'messages'),
+            [$batch_id, 'messages'],
             $this->httpClient->isSecure()
         );
 

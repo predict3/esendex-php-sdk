@@ -37,14 +37,14 @@ namespace Esendex\Http;
 class UriBuilder
 {
     const HOST = "api.esendex.com";
-    private static $url_separator;
+    private static string $url_separator;
 
-    public static function init()
+    public static function init(): void
     {
-        self::$url_separator = ini_get('arg_separator.output');
+        self::$url_separator = (string) ini_get('arg_separator.output');
     }
 
-    public static function serviceUri($version, $resource, ?array $parts = null, $secure = true)
+    public static function serviceUri($version, $resource, ?array $parts = null, $secure = true): string
     {
         $host = defined("ESENDEX_API_HOST") ? ESENDEX_API_HOST : self::HOST;
         $scheme = ($secure) ? "https" : "http";
@@ -59,7 +59,7 @@ class UriBuilder
         return $result;
     }
 
-    public static function buildQuery(array $params)
+    public static function buildQuery(array $params): string
     {
         foreach ($params as $key => $value) {
             if ($value instanceof \DateTime) {
@@ -67,19 +67,7 @@ class UriBuilder
             }
         }
         
-        if (defined("PHP_QUERY_RFC3986")) { // >= 5.4
-            return http_build_query($params, '', self::$url_separator, PHP_QUERY_RFC3986);
-        }
-
-        $result = '';
-        $glue = '';
-        foreach ($params as $key => $value) {
-            $encodedKey = rawurlencode($key);
-            $encodedValue = rawurlencode($value);
-            $result .= "{$glue}{$encodedKey}={$encodedValue}";
-            $glue = self::$url_separator;
-        }
-        return $result;
+        return http_build_query($params, '', self::$url_separator, PHP_QUERY_RFC3986);
     }
 }
 UriBuilder::init();

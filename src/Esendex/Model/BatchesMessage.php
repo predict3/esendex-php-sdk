@@ -45,7 +45,7 @@ class BatchesMessage
      * @param string $value
      * @return string
      */
-    public function phonenumber($value = null)
+    public function phonenumber($value = null): ?string
     {
         if ($value != null) {
             $this->phonenumber = (string)$value;
@@ -57,7 +57,7 @@ class BatchesMessage
      * @param string $value
      * @return string
      */
-    public function status($value = null)
+    public function status($value = null): ?string
     {
         if ($value != null) {
             $this->status = (string)$value;
@@ -69,14 +69,11 @@ class BatchesMessage
      * @param string $value
      * @return string
      */
-    public function id($value = null)
+    public function id($value = null): ?string
     {
         if ($value != null) {
             $this->id = (string)$value;
         }
         return $this->id;
     }
-
-
-
 }

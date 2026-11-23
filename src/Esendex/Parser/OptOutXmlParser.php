@@ -42,7 +42,7 @@ use Esendex\Model\OptOutsPage;
 
 class OptOutXmlParser
 {
-    public function parseOptOut($optOut)
+    public function parseOptOut($optOut): OptOut
     {
         $result = new OptOut();
         $result->id($optOut["id"]);
@@ -53,13 +53,13 @@ class OptOutXmlParser
         return $result;
     }
 
-    public function parsePostResponse($xml)
+    public function parsePostResponse($xml): OptOut
     {
         $response = simplexml_load_string($xml);
         return $this->parseOptOut($response->optout);
     }
 
-    public function encodePostRequest($accountReference, $phoneNumber)
+    public function encodePostRequest($accountReference, $phoneNumber): string
     {
         if (strlen((string) $phoneNumber) < 1)
             throw new ArgumentException("Recipient is invalid");
@@ -76,10 +76,10 @@ class OptOutXmlParser
         return $doc->asXML();
     }
 
-    public function parseMultipleResult($xml)
+    public function parseMultipleResult($xml): OptOutsPage
     {
         $response = simplexml_load_string($xml);
-        $optOuts = array();
+        $optOuts = [];
         foreach ($response->optout as $optOut) {
             $parsedOptOut = $this->parseOptOut($optOut);
             $optOuts[] = $parsedOptOut;
@@ -90,7 +90,7 @@ class OptOutXmlParser
         return $result;
     }
 
-    private function parseDateTime($value)
+    private function parseDateTime($value): \DateTime
     {
         $array = (array) $value;
         $date = $array[0];

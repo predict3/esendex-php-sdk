@@ -44,17 +44,17 @@ abstract class Message
     const SmsType = "SMS";
     const VoiceType = "Voice";
 
-    private $originator;
-    private $recipient;
-    private $status;
-    private $type;
-    private $batchId;
+    private ?string $originator = null;
+    private ?string $recipient = null;
+    private ?string $status = null;
+    private ?string $type = null;
+    private ?string $batchId = null;
 
     /**
      * @param string $value
      * @return string
      */
-    public function originator($value = null)
+    public function originator($value = null): ?string
     {
         if ($value != null) {
             $this->originator = (string)$value;
@@ -67,10 +67,10 @@ abstract class Message
      * @return string
      * @throws \Esendex\Exceptions\ArgumentException
      */
-    public function recipient($value = null)
+    public function recipient($value = null): ?string
     {
         if ($value != null) {
-            if (strlen($value) == 0) {
+            if (strlen((string) $value) == 0) {
                 throw new ArgumentException('The recipient given to this message is empty');
             }
             $this->recipient = (string)$value;
@@ -82,7 +82,7 @@ abstract class Message
      * @param string $value
      * @return string
      */
-    public function status($value = null)
+    public function status($value = null): ?string
     {
         if ($value != null) {
             $this->status = (string)$value;
@@ -95,7 +95,7 @@ abstract class Message
      * @return string
      * @throws \Esendex\Exceptions\ArgumentException
      */
-    public function type($value = null)
+    public function type($value = null): ?string
     {
         if ($value != null) {
             if ($value != self::SmsType && $value != self::VoiceType) {
@@ -110,7 +110,7 @@ abstract class Message
      * @param string $value
      * @return string
      */
-    public function batchId($value = null)
+    public function batchId($value = null): ?string
     {
         if ($value != null) {        
             $this->batchId = (string)$value;

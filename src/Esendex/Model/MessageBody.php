@@ -43,14 +43,14 @@ class MessageBody
     const CharsetAuto = "Auto";
     const CharsetNone = "";
     
-    private $bodyText;
-    private $characterSet;
+    private ?string $bodyText = null;
+    private ?string $characterSet = null;
 
     /**
      * @param string $value
      * @return string
      */
-    public function bodyText($value = null)
+    public function bodyText($value = null): ?string
     {
         if ($value != null) {
             $this->bodyText = (string)$value;
@@ -63,13 +63,13 @@ class MessageBody
      * @return string
      * @throws \Esendex\Exceptions\ArgumentException
      */
-    public function characterSet($value = null)
+    public function characterSet($value = null): ?string
     {
         if ($value != null) {
             if ($value != self::CharsetGSM && $value != self::CharsetUnicode) {
                 if($value == self::CharsetNone) {
                     $this->characterSet = "None";
-                    return;
+                    return null;
                 }
             
                 throw new ArgumentException(
@@ -85,8 +85,8 @@ class MessageBody
         return $this->characterSet;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->bodyText;
+        return (string) $this->bodyText;
     }
 }

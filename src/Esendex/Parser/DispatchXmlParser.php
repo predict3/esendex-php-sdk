@@ -43,12 +43,12 @@ class DispatchXmlParser
 {
     private $reference;
 
-    function __construct($accountReference)
+    public function __construct($accountReference)
     {
         $this->reference = $accountReference;
     }
 
-    public function encode(\Esendex\Model\DispatchMessage $message)
+    public function encode(\Esendex\Model\DispatchMessage $message): string
     {
         $doc = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><messages />", 0, false, Api::NS);
         $doc->addAttribute("xmlns", Api::NS);
@@ -61,7 +61,7 @@ class DispatchXmlParser
         return $doc->asXML();
     }
 
-    public function encodeMultiple(array $messages)
+    public function encodeMultiple(array $messages): string
     {
         if (count($messages) < 1) {
             throw new ArgumentException("No message found");
@@ -80,7 +80,7 @@ class DispatchXmlParser
         return $doc->asXML();
     }
 
-    public function addMessage(\SimpleXMLElement $doc, \Esendex\Model\DispatchMessage $message)
+    public function addMessage(\SimpleXMLElement $doc, \Esendex\Model\DispatchMessage $message): void
     {
         if ($message->originator() != null) {
             if (ctype_digit($message->originator())) {
@@ -107,7 +107,7 @@ class DispatchXmlParser
             $child->from = $message->originator();
         $child->to = $recipient;
         $child->body = $message->body();
-		    $child->type = $message->type();
+        $child->type = $message->type();
         if ($message->validityPeriod() > 0)
             $child->validity = $message->validityPeriod();
         if ($message->language() != null)
@@ -117,13 +117,13 @@ class DispatchXmlParser
 
     }
 
-    public function parse($xml)
+    public function parse($xml): array
     {
         $headers = simplexml_load_string($xml);
         if ($headers->getName() != "messageheaders")
             throw new XmlException("Xml is missing <messageheaders /> root element");
 
-        $results = array();
+        $results = [];
         $batchid = $headers['batchid'];
 
         foreach ($headers->messageheader as $header)

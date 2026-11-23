@@ -154,6 +154,30 @@ class ConsumerContractTest extends TestCase
     }
 
     #[Test]
+    public function consumerTestDoublesStillWork(): void
+    {
+        // unsubscribe-bundle tests build opt-outs by hand, with a stdClass as "from"
+        $from = new \stdClass();
+        $from->phonenumber = '+33612345678';
+        $optOut = new OptOut();
+        $optOut->from($from);
+        $optOut->receivedAt($date = new \DateTime());
+        $this->assertSame('+33612345678', $optOut->from()->phoneNumber());
+        $this->assertSame($date, $optOut->receivedAt());
+
+        $page = new OptOutsPage(0, 40, [$optOut]);
+        $this->assertSame(40, $page->totalCount());
+        $this->assertSame([$optOut], $page->optOuts());
+
+        // php-lib PartialSendTest builds results and exceptions by hand
+        $result = new ResultItem('id-1', 'uri');
+        $this->assertSame('id-1', $result->id());
+        $this->assertSame('', $result->batchid());
+        $this->assertSame(400, (new EsendexException('Bad request', 400))->getCode());
+        $this->assertSame(0, (new EsendexException('no code'))->getCode());
+    }
+
+    #[Test]
     public function keptExceptionHierarchy(): void
     {
         $this->assertTrue(is_subclass_of(ArgumentException::class, EsendexException::class));

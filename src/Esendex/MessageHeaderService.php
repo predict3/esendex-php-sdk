@@ -39,9 +39,9 @@ class MessageHeaderService
     const SERVICE = "messageheaders";
     const SERVICE_VERSION = "v1.0";
 
-    private $authentication;
-    private $httpClient;
-    private $parser;
+    private Authentication\IAuthentication $authentication;
+    private Http\IHttp $httpClient;
+    private Parser\MessageHeaderXmlParser $parser;
 
     /**
      * @param Authentication\IAuthentication $authentication
@@ -55,12 +55,8 @@ class MessageHeaderService
     )
     {
         $this->authentication = $authentication;
-        $this->httpClient = (isset($httpClient))
-            ? $httpClient
-            : new Http\HttpClient(true);
-        $this->parser = (isset($parser))
-            ? $parser
-            : new Parser\MessageHeaderXmlParser();
+        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
+        $this->parser = $parser ?? new Parser\MessageHeaderXmlParser();
     }
 
     /**
@@ -69,7 +65,7 @@ class MessageHeaderService
      * @param $messageId
      * @return Model\InboxMessage|Model\SentMessage
      */
-    public function message($messageId)
+    public function message($messageId): Model\ResultMessage
     {
         $uri = Http\UriBuilder::serviceUri(
             self::SERVICE_VERSION,

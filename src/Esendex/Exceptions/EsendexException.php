@@ -36,7 +36,7 @@ namespace Esendex\Exceptions;
 
 class EsendexException extends \Exception
 {
-    private $exceptionInfo;
+    private ?array $exceptionInfo = null;
 
     public function __construct($message = '', ?int $code = null, ?array $_info = null)
     {
@@ -53,15 +53,15 @@ class EsendexException extends \Exception
         return $this->exceptionInfo;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        $error = array(
+        $error = [
             'file' => $this->getFile(),
             'line' => $this->getLine(),
             'code' => $this->getCode(),
             'message' => $this->getMessage(),
             'stacktrace' => substr($this->getTraceAsString(), 0, 400),
-        );
+        ];
 
         if ($this->exceptionInfo != null) {
             array_merge($error, $this->exceptionInfo());

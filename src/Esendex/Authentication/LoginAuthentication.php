@@ -36,7 +36,8 @@ namespace Esendex\Authentication;
 
 class LoginAuthentication extends AbstractAuthentication
 {
-    private $username, $password;
+    private string $username;
+    private string $password;
 
     /**
      * @param $accountReference
@@ -54,7 +55,7 @@ class LoginAuthentication extends AbstractAuthentication
     /**
      * @return string
      */
-    function getEncodedValue()
+    public function getEncodedValue(): string
     {
         return "Basic " . base64_encode("{$this->username}:{$this->password}");
     }

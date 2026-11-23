@@ -36,15 +36,15 @@ namespace Esendex\Model;
 
 class InboxMessage extends ResultMessage
 {
-    private $receivedAt;
-    private $readAt;
-    private $readBy;
+    private ?\DateTime $receivedAt = null;
+    private ?\DateTime $readAt = null;
+    private ?string $readBy = null;
 
     /**
      * @param \DateTime $value
      * @return \DateTime
      */
-    public function receivedAt($value = null)
+    public function receivedAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->receivedAt = $value;
@@ -56,7 +56,7 @@ class InboxMessage extends ResultMessage
      * @param \DateTime $value
      * @return \DateTime
      */
-    public function readAt($value = null)
+    public function readAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->readAt = $value;
@@ -68,7 +68,7 @@ class InboxMessage extends ResultMessage
      * @param string $value
      * @return string
      */
-    public function readBy($value = null)
+    public function readBy($value = null): ?string
     {
         if ($value != null) {
             $this->readBy = (string)$value;

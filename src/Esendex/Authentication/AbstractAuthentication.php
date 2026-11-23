@@ -36,7 +36,7 @@ namespace Esendex\Authentication;
 
 abstract class AbstractAuthentication implements IAuthentication
 {
-    private $accountReference;
+    private string $accountReference;
 
     /**
      * @param $accountReference
@@ -49,7 +49,7 @@ abstract class AbstractAuthentication implements IAuthentication
     /**
      * @return string
      */
-    public function accountReference()
+    public function accountReference(): string
     {
         return $this->accountReference;
     }

@@ -41,9 +41,9 @@ class DispatchService
     const ACCOUNTS_SERVICE = "accounts";
     const ACCOUNTS_SERVICE_VERSION = "v1.0";
 
-    private $authentication;
-    private $httpClient;
-    private $parser;
+    private Authentication\IAuthentication $authentication;
+    private Http\IHttp $httpClient;
+    private Parser\DispatchXmlParser $parser;
 
     /**
      * @param Authentication\IAuthentication $authentication
@@ -56,12 +56,8 @@ class DispatchService
         ?Parser\DispatchXmlParser $parser = null
     ) {
         $this->authentication = $authentication;
-        $this->httpClient = (isset($httpClient))
-            ? $httpClient
-            : new Http\HttpClient(true);
-        $this->parser = (isset($parser))
-            ? $parser
-            : new Parser\DispatchXmlParser($authentication->accountReference());
+        $this->httpClient = $httpClient ?? new Http\HttpClient(true);
+        $this->parser = $parser ?? new Parser\DispatchXmlParser($authentication->accountReference());
     }
 
     /**
@@ -69,7 +65,7 @@ class DispatchService
      * @return Model\ResultItem
      * @throws Exceptions\EsendexException
      */
-    public function send(Model\DispatchMessage $message)
+    public function send(Model\DispatchMessage $message): Model\ResultItem
     {
         $xml = $this->parser->encode($message);
         $uri = Http\UriBuilder::serviceUri(
@@ -90,7 +86,7 @@ class DispatchService
         if (count($arr) >= 1) {
             return $arr[0];
         } else {
-            throw new Exceptions\EsendexException("Error parsing the dispatch result", null, array('data_returned' => $result));
+            throw new Exceptions\EsendexException("Error parsing the dispatch result", null, ['data_returned' => $result]);
         }
     }
 
@@ -99,7 +95,7 @@ class DispatchService
      * @return array of Model\ResultItem
      * @throws Exceptions\EsendexException
      */
-    public function sendMultiple(array $messages)
+    public function sendMultiple(array $messages): array
     {
         $xml = $this->parser->encodeMultiple($messages);
         $uri = Http\UriBuilder::serviceUri(
@@ -120,7 +116,7 @@ class DispatchService
         if (count($arr) >= 1) {
             return $arr;
         } else {
-            throw new Exceptions\EsendexException("Error parsing the dispatch result", null, array('data_returned' => $result));
+            throw new Exceptions\EsendexException("Error parsing the dispatch result", null, ['data_returned' => $result]);
         }
     }
 
@@ -129,7 +125,7 @@ class DispatchService
      *
      * @return int
      */
-    public function getCredits()
+    public function getCredits(): int
     {
         try {
             $uri = Http\UriBuilder::serviceUri(
