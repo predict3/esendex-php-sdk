@@ -63,24 +63,6 @@ class SentMessagesService
     }
 
     /**
-     * @param int $startIndex
-     * @param int $count
-     * @return Model\SentMessagesPage
-     */
-    public function latest($startIndex = null, $count = null)
-    {
-        $query = array();
-        if ($startIndex != null && is_int($startIndex)) {
-            $query["startIndex"] = $startIndex;
-        }
-        if ($count != null && is_int($count)) {
-            $query["count"] = $count;
-        }
-
-        return $this->loadMessages($query);
-    }
-
-    /**
      * @param array $options
      * @return Model\SentMessagesPage
      */

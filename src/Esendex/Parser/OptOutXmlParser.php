@@ -42,12 +42,6 @@ use Esendex\Model\OptOutsPage;
 
 class OptOutXmlParser
 {
-    public function parse($xml)
-    {
-        $optOut = simplexml_load_string($xml);
-        return $this->parseOptOut($optOut);
-    }
-
     public function parseOptOut($optOut)
     {
         $result = new OptOut();

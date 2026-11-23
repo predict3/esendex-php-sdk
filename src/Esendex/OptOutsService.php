@@ -63,27 +63,6 @@ class OptOutsService
     }
 
     /**
-     * @param string $optOutId
-     * @return Model\OptOut
-     */
-    public function getById($optOutId)
-    {
-        $uri = Http\UriBuilder::serviceUri(
-            self::SERVICE_VERSION,
-            self::SERVICE,
-            array($optOutId),
-            $this->httpClient->isSecure()
-        );
-        
-        $xmlResult = $this->httpClient->get(
-                         $uri,
-                         $this->authentication
-                     );
-        
-        return $this->parser->parse($xmlResult);
-    }
-
-    /**
      * @param string $accountReference
      * @param string $mobileNumber
      * @return Model\OptOut
@@ -108,44 +87,6 @@ class OptOutsService
         return $this->parser->parsePostResponse($xmlResult);
     }
     
-    /**
-     * @param string $pageNumber
-     * @param string $pageSize
-     * @return array
-     */
-    public function get($pageNumber = null, $pageSize = null)
-    {
-        if($pageNumber == null)
-        {
-            $pageNumber = 1;
-        }
-        if($pageSize == null)
-        {
-            $pageSize = 15;
-        } 
-          
-        $startIndex = ($pageNumber-1)*$pageSize;
-        
-        $uri = Http\UriBuilder::serviceUri(
-            self::SERVICE_VERSION,
-            self::SERVICE,
-            null,
-            $this->httpClient->isSecure()
-        );
-        
-        $query = array();
-        $query["startIndex"] = $startIndex;
-        $query["count"] = $pageSize;
-        $uri .= "?" . Http\UriBuilder::buildQuery($query);
-        
-        $xmlResult = $this->httpClient->get(
-                         $uri,
-                         $this->authentication
-                     );
-        
-        return $this->parser->parseMultipleResult($xmlResult);
-    }
-
     /**
      * @param string $pageNumber
      * @param string $pageSize
@@ -182,26 +123,6 @@ class OptOutsService
             $this->authentication
         );
 
-        return $this->parser->parseMultipleResult($xmlResult);
-    }
-
-    public function getByFrom(string $from)
-    {
-        $uri = Http\UriBuilder::serviceUri(
-            self::SERVICE_VERSION,
-            self::SERVICE,
-            null,
-            $this->httpClient->isSecure()
-        );
-
-        $query = array();
-        $query["from"] = $from;
-        $uri .= "?" . Http\UriBuilder::buildQuery($query);
-
-        $xmlResult = $this->httpClient->get(
-            $uri,
-            $this->authentication
-        );
         return $this->parser->parseMultipleResult($xmlResult);
     }
 

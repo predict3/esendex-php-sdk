@@ -108,7 +108,7 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
     {
         $parser = new OptOutXmlParser();
 
-        $result = $parser->parse(self::OPTOUT_RESPONSE_XML);
+        $result = $parser->parseOptOut(simplexml_load_string(self::OPTOUT_RESPONSE_XML));
         
         $this->assertInstanceOf("\\Esendex\\Model\\OptOut", $result);
 

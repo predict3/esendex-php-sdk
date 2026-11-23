@@ -78,34 +78,13 @@ class HttpClient implements IHttp
         return $results['data'];
     }
 
-    public function put($url, IAuthentication $authentication, $data)
-    {
-        $results = $this->request($url, $authentication, 'PUT', $data);
-
-        return $results['data'];
-    }
-
     public function post($url, IAuthentication $authentication, $data)
     {
         $results = $this->request($url, $authentication, 'POST', $data);
 
         return $results['data'];
     }
-
-    public function postJson($url, IAuthentication $authentication, $data)
-    {
-        $results = $this->request($url, $authentication, 'POST', $data, "application/json");
-
-        return $results['data'];
-    }
     
-    public function delete($url, IAuthentication $authentication)
-    {
-        $results = $this->request($url, $authentication, 'DELETE');
-
-        return $results['statuscode'];
-    }
-
     private function request($url, $authentication, $method, $data = null, $contentType = "application/xml")
     {
         $httpHeaders = array("Authorization: {$authentication->getEncodedValue()}");

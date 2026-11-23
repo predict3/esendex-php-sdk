@@ -41,13 +41,8 @@ interface IHttp
 
     function get($url, IAuthentication $authentication);
 
-    function put($url, IAuthentication $authentication, $data);
-
     function post($url, IAuthentication $authentication, $data);
     
-    function postJson($url, IAuthentication $authentication, $data);
-
-    function delete($url, IAuthentication $authentication);
 }
 
 class HttpException extends \Esendex\Exceptions\EsendexException {}

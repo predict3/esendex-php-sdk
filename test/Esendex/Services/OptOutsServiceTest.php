@@ -80,30 +80,6 @@ class OptOutsServiceTest extends \PHPUnit\Framework\TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function getById()
-    {
-        $expectedOptOut = new OptOut();
-        $this->httpUtil
-            ->expects($this->once())
-            ->method("get")
-            ->with(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/optouts/{$this->optOutId}"
-            ),
-            $this->equalTo($this->authentication)
-        )
-            ->willReturn(true);
-            
-        $this->parser->expects($this->any())
-            ->method("parse")
-            ->willReturn($expectedOptOut);
-
-        $result = $this->service->getById($this->optOutId);
-        
-        $this->assertSame($expectedOptOut, $result);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
     function add()
     {
         $expectedRequest = "<optout><accountreference>EX123456</accountreference><from><phonenumber>447712345678</phonenumber><from><optout>";
@@ -132,30 +108,5 @@ class OptOutsServiceTest extends \PHPUnit\Framework\TestCase
         $result = $this->service->add($this->reference, $mobileNumber);
         
         $this->assertSame($expectedOptOut, $result);
-    }
-    
-    #[\PHPUnit\Framework\Attributes\Test]
-    function get()
-    {
-        $expectedOptOuts = array();
-        $expectedOptOuts[] = new OptOut();
-        $this->httpUtil
-            ->expects($this->once())
-            ->method("get")
-            ->with(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/optouts?startIndex=0&count=20"
-            ),
-            $this->equalTo($this->authentication)
-        )
-            ->willReturn(true);
-            
-        $this->parser->expects($this->any())
-            ->method("parseMultipleResult")
-            ->willReturn($expectedOptOuts);
-
-        $result = $this->service->get(1, 20);
-        
-        $this->assertSame($expectedOptOuts, $result);
     }
 }
