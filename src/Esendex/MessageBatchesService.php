@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2013, Esendex Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Esendex nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,59 +34,39 @@
  */
 namespace Esendex;
 
+use Esendex\Authentication\IAuthentication;
+use Esendex\Http\HttpClient;
+use Esendex\Http\IHttp;
+use Esendex\Http\UriBuilder;
+use Esendex\Parser\BatchesMessagesXmlParser;
+
 class MessageBatchesService
 {
     const SERVICE = "messagebatches";
     const SERVICE_VERSION = "v1.0";
 
-    private $authentication;
-    private $httpClient;
-    private $parser;
+    private IAuthentication $authentication;
+    private IHttp $httpClient;
+    private BatchesMessagesXmlParser $parser;
 
-    /**
-     * @param Authentication\IAuthentication $authentication
-     * @param Http\IHttp $httpClient
-     * @param Parser\MessageHeaderXmlParser $parser
-     */
     public function __construct(
-        Authentication\IAuthentication $authentication,
-        ?Http\IHttp $httpClient = null,
-        ?Parser\BatchesMessagesXmlParser $parser = null
-    )
-    {
+        IAuthentication $authentication,
+        ?IHttp $httpClient = null,
+        ?BatchesMessagesXmlParser $parser = null
+    ) {
         $this->authentication = $authentication;
-        $this->httpClient = (isset($httpClient))
-            ? $httpClient
-            : new Http\HttpClient(true);
-        $this->parser = (isset($parser))
-            ? $parser
-            : new Parser\BatchesMessagesXmlParser();
+        $this->httpClient = $httpClient ?? new HttpClient(true);
+        $this->parser = $parser ?? new BatchesMessagesXmlParser();
     }
 
     /**
-     * Get detailed information about messages from it's batch_id.
-     *
-     * @param string $batch_id
-     * @param int $startIndex
-     * @param int $pageSize
-     * @return array
+     * Messages of a batch, with their delivery status.
      */
-    public function messages($batch_id, $startIndex = 0, $pageSize = 15)
+    public function messages($batch_id, $startIndex = 0, $pageSize = 15): array
     {
-        $uri = Http\UriBuilder::serviceUri(
-            self::SERVICE_VERSION,
-            self::SERVICE,
-            array($batch_id, 'messages'),
-            $this->httpClient->isSecure()
-        );
+        $uri = UriBuilder::serviceUri(self::SERVICE_VERSION, self::SERVICE, [$batch_id, 'messages'], $this->httpClient->isSecure())
+            . '?' . UriBuilder::buildQuery(['startIndex' => $startIndex, 'count' => $pageSize]);
 
-        $query = array();
-        $query["startIndex"] = $startIndex;
-        $query["count"] = $pageSize;
-        $uri .= "?" . Http\UriBuilder::buildQuery($query);
-
-        $result = $this->httpClient->get($uri, $this->authentication);
-
-        return $this->parser->parse($result);
+        return $this->parser->parse($this->httpClient->get($uri, $this->authentication));
     }
 }

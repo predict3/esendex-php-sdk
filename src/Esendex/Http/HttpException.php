@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,49 +25,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * @category   Testing
+ * @category   Http
  * @package    Esendex
  * @author     Commify Support <support@esendex.com>
  * @copyright  2019 Commify Ltd.
  * @license    http://opensource.org/licenses/BSD-3-Clause  BSD 3-Clause
  * @link       https://github.com/esendex/esendex-php-sdk
  */
-namespace Esendex;
+namespace Esendex\Http;
 
-class GetStandardReportWithInvalidDateRangeTypeTest extends \PHPUnit\Framework\TestCase
+class HttpException extends \Esendex\Exceptions\EsendexException
 {
-    private $startDate;
-    private $endDate;
-
-    private $authentication;
-    private $service;
-    private $httpUtil;
-    private $surveyId;
-
-    function setUp(): void
-    {
-        $this->startDate = new \DateTime("2016-12-01T00:00:00");
-        $this->endDate = new \DateTime("2016-12-02T00:00:00");
-
-        $this->authentication = new Authentication\LoginAuthentication("SV0000001", "someone@esendex.com", "hunter2");
-        $this->surveyId = "e6ea4f5e-4d41-4b1e-8912-6c3131978a77";
-
-        $this->httpUtil = $this->createMock(\Esendex\Http\IHttp::class);
-        $this->service = new SurveyReportService($this->authentication, $this->httpUtil);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    function getStandardReport()
-    {
-        try {
-            $this->service->getStandardReport($this->surveyId, null, null, 999);
-        }
-        catch (\Exception $e)
-        {
-            $this->assertEquals("Invalid date range type", $e->getMessage());
-            return;
-        }
-
-        $this->fail("Expected getStandardReport to throw an exception");
-    }
 }

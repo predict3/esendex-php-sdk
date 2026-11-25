@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -42,21 +42,6 @@ class UriBuilderTest extends \PHPUnit\Framework\TestCase
         $version = "v1.0";
         $resource = "banana";
         $expected = "https://" . UriBuilder::HOST . "/{$version}/{$resource}";
-
-        $result = UriBuilder::serviceUri($version, $resource);
-
-        $this->assertEquals($expected, $result);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    #[\PHPUnit\Framework\Attributes\RunInSeparateProcess]
-    function serviceUriWithOverrideHostReturnsExpectedUri(): void
-    {
-		define("ESENDEX_API_HOST", "api.myfakeesendex.com");
-		
-        $version = "v1.0";
-        $resource = "apple";
-        $expected = "https://" . ESENDEX_API_HOST . "/{$version}/{$resource}";
 
         $result = UriBuilder::serviceUri($version, $resource);
 

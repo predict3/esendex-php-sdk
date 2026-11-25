@@ -1,166 +1,86 @@
-Esendex PHP Client
-==================
+esendex-php-sdk (version Predict)
+=================================
+
+Bibliothèque d'envoi de SMS utilisée par nos projets (php-lib, unsubscribe-bundle et les applications qui en dépendent).
+
+Depuis la 3.8, elle ne contient que ce que nos projets utilisent réellement (tableau ci-dessous) ;
+le reste du SDK Esendex a été supprimé. Pour ces usages, rien ne change : mêmes noms de classes,
+même namespace `Esendex\`, mêmes paramètres de méthodes.
 
 ## Installation
 
-### Requirements
- - PHP 8.3 or later (PHP 8.x)
- - ext-curl, ext-simplexml and ext-ctype enabled
+Prérequis : PHP 8.3 ou plus, avec les extensions `curl`, `simplexml` et `ctype`.
 
-The **esendex-php-sdk** is installed through Composer.
+Le paquet garde le nom `esendex/sdk`. Il faut donc déclarer notre dépôt dans le `composer.json` du projet,
+sinon Composer installe la version publique de Packagist, qui n'a pas nos modifications :
 
-#### Composer
-Composer is not included within the repository, so you will need to retrieve it using the following command:
-```bash
-curl -sS https://getcomposer.org/installer | php
-```
-
-For installation on other platforms see [getcomposer.org](https://getcomposer.org)
-
-#### Predict fork
-This repository is the Predict fork of the SDK, available at `https://github.com/predict3/esendex-php-sdk.git`.
-It keeps the original Composer package name `esendex/sdk`, so it must be declared as a VCS repository in your *composer.json*:
 ```json
 {
     "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/predict3/esendex-php-sdk.git"
-        }
-    ]
+        { "type": "vcs", "url": "https://github.com/predict3/esendex-php-sdk.git" }
+    ],
+    "require": {
+        "esendex/sdk": "^3.8"
+    }
 }
 ```
-or with the following command:
-```bash
-$ php composer.phar config repositories.esendex-sdk vcs https://github.com/predict3/esendex-php-sdk.git
-```
 
-Then run
-```bash
-$ php composer.phar require esendex/sdk
-```
-Composer will install the latest stable version of the fork and add the matching version constraint to your *composer.json*.
+## Ce que contient la bibliothèque
 
-> **Warning:** the [`esendex/sdk`](https://packagist.org/packages/esendex/sdk) package published on Packagist is the upstream SDK, not this fork.
-> Without the VCS repository above, `composer require esendex/sdk` installs the upstream version, which does not include the fork's changes.
+| Service | Méthodes | Utilisé par |
+|---|---|---|
+| `DispatchService` | `send`, `sendMultiple` | envoi des SMS (php-lib et applications) |
+| | `getCredits` | healthchecks |
+| `OptOutsService` | `add` | commandes d'ajout de désinscription |
+| | `getMyAccountReference` | import des désinscriptions (unsubscribe-bundle), healthcheck php-lib |
+| `MessageHeaderService` | `message` | statut d'un message (php-lib et applications) |
+| `MessageBatchesService` | `messages` | statut des messages d'un lot (php-lib) |
+| `SentMessagesService` | `loadMessages` | reporting SMS (via php-lib) |
+| `Http\HttpClient` | `get` | appel direct de l'API (monitoring) |
 
-Then just include Composer's generated *autoload.php* somewhere in your code;
-```php5
-require_once 'path/to/vendor/autoload.php';
-```
+Les erreurs HTTP 400, 401, 402, 403, 404, 405, 408, 500, 501 et 503 lèvent une `Http\HttpException`
+(sous-classe de `Exceptions\EsendexException`) dont `getCode()` est le code HTTP :
+php-lib s'en sert pour distinguer un envoi rejeté (4xx) d'un échec inconnu.
+Les autres codes et les erreurs réseau lèvent une `\Exception` générique.
 
-## Getting Started
+## Exemples
 
-#### Sending SMS
-```php5
-$message = new \Esendex\Model\DispatchMessage(
-    "WebApp", // Send from
-    "01234567890", // Send to any valid number
-    "My Web App is SMS enabled!",
-    \Esendex\Model\Message::SmsType
+```php
+use Esendex\Authentication\LoginAuthentication;
+use Esendex\DispatchService;
+use Esendex\Model\DispatchMessage;
+use Esendex\Model\Message;
+use Esendex\Model\MessageBody;
+use Esendex\OptOutsService;
+
+$authentication = new LoginAuthentication($account, $login, $password);
+
+// Envoi d'un SMS (plusieurs destinataires possibles, séparés par une virgule)
+$result = (new DispatchService($authentication))->send(
+    new DispatchMessage($from, '33600000001', 'Alerte', Message::SmsType, 0, 'fr-FR', MessageBody::CharsetGSM)
 );
-$authentication = new \Esendex\Authentication\LoginAuthentication(
-    "EX000000", // Your Esendex Account Reference
-    "user@example.com", // Your login email address
-    "password" // Your password
-);
-$service = new \Esendex\DispatchService($authentication);
-$result = $service->send($message);
+$result->id();
+$result->batchid();
 
-print $result->id();
-print $result->uri();
-```
-
-#### Retrieving Inbox Messages
-```php5
-$authentication = new \Esendex\Authentication\LoginAuthentication(
-    "EX000000", // Your Esendex Account Reference
-    "user@example.com", // Your login email address
-    "password" // Your password
-);
-$service = new \Esendex\InboxService($authentication);
-
-$result = $service->latest();
-
-print "Total Inbox Messages: {$result->totalCount()}";
-print "Fetched: {$result->count()}";
-foreach ($result as $message) {
-    print "Message from: {$message->originator()}, {$message->summary()}";
+// Désinscriptions, page par page
+$page = (new OptOutsService($authentication))->getMyAccountReference(1, 25);
+foreach ($page->optOuts() as $optOut) {
+    $optOut->from()->phoneNumber();
+    $optOut->receivedAt();
 }
 ```
-#### Track Message Status
-```php5
-$authentication = new \Esendex\Authentication\LoginAuthentication(
-    "EX000000", // Your Esendex account reference
-    "user@example.com", // Your login email
-    "password" // Your password
-);
-$headerService = new \Esendex\MessageHeaderService($authentication);
-$message = $headerService->message("messageId");
-print_r($message->status());
-```
 
-#### Retrieving Full Message Body
-```php5
-$messageId = "unique-id-of-message";
-$authentication = new \Esendex\Authentication\LoginAuthentication(
-    "EX000000", // Your Esendex Account Reference
-    "user@example.com", // Your login email address
-    "password" // Your password
-);
-$service = new \Esendex\MessageBodyService($authentication);
+## Tests
 
-$result = $service->getMessageBodyById($messageId);
-
-print $result;
-```
-
-## Would you like to know more?
-Full REST API documentation can be found @ [developers.esendex.com](http://developers.esendex.com/)
-
-## Testing
-#### Unit Tests
-
-You will need to install composer in order to acquire the pre-requisites. This can be achieved by the following command:
 ```bash
-$ curl -sS https://getcomposer.org/installer | php
+composer install
+vendor/bin/phpunit
 ```
 
-To retrieve said pre-requisites execute the following:
-```bash
-$ composer.phar install
-```
+- Tous les services sont testés avec un faux client HTTP (`IHttp`)
+- `phpunit.xml` fait passer toute requête réelle par un proxy mort (`127.0.0.1:9`)
+  `SafetyNetTest` vérifie que cette protection est active
 
-A suite of tests can be found in the `test` directory. To run them use the [phing](http://www.phing.info) build utility. e.g.
-```bash
-$ php vendor/bin/phing
-```
+`test/Esendex/Compat/ConsumerContractTest.php` reproduit les appels faits par nos projets.
+S'il casse, un projet casse : la modification n'est pas rétrocompatible.
 
-#### Credentials Test
-You can check your account credentials using a phing task we have provided. First, ensure dependencies have been installed with composer:
-```bash
-$ composer.phar install
-```
-Run the `check-access` script:
-```bash
-$ vendor/bin/phing check-access
-Buildfile: /home/developer/esendex-php-sdk/build.xml
-
-EsendexSDK > check-access:
-
-Esendex Username ? user@example.com
-Esendex Password ? secret
-Account Reference? EX000000
-
-    Account credentials OK!
-
-BUILD FINISHED
-
-Total time: 10.0000 seconds
-``` 
-
-## Issues
-We hope you don't run into any issues but if you should please make use of the issue tracker on [github](https://github.com/esendex/esendex-php-sdk/issues) or send an email to [support@esendex.com](mailto:support@esendex.com)
-
-## Feedback
-Let us know what you think [@esendex](http://twitter.com/esendex)

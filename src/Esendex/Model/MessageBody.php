@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,59 +34,9 @@
  */
 namespace Esendex\Model;
 
-use Esendex\Exceptions\ArgumentException;
-
 class MessageBody
 {
     const CharsetGSM = "GSM";
     const CharsetUnicode = "Unicode";
     const CharsetAuto = "Auto";
-    const CharsetNone = "";
-    
-    private $bodyText;
-    private $characterSet;
-
-    /**
-     * @param string $value
-     * @return string
-     */
-    public function bodyText($value = null)
-    {
-        if ($value != null) {
-            $this->bodyText = (string)$value;
-        }
-        return $this->bodyText;
-    }
-
-    /**
-     * @param string $value
-     * @return string
-     * @throws \Esendex\Exceptions\ArgumentException
-     */
-    public function characterSet($value = null)
-    {
-        if ($value != null) {
-            if ($value != self::CharsetGSM && $value != self::CharsetUnicode) {
-                if($value == self::CharsetNone) {
-                    $this->characterSet = "None";
-                    return;
-                }
-            
-                throw new ArgumentException(
-                    "characterSet() value was '{$value}' and must be either '" . 
-                    self::CharsetGSM . 
-                    "' or '" . 
-                    self::CharsetUnicode . 
-                    "'"
-                );
-            }
-            $this->characterSet = (string)$value;
-        }
-        return $this->characterSet;
-    }
-
-    public function __toString()
-    {
-        return $this->bodyText;
-    }
 }

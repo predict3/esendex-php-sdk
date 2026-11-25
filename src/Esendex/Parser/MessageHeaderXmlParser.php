@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,78 +34,52 @@
  */
 namespace Esendex\Parser;
 
-use Esendex\Model\Message;
 use Esendex\Model\SentMessage;
-use Esendex\Model\InboxMessage;
 use Esendex\Model\FailureReason;
 
 class MessageHeaderXmlParser
 {
-    public function parse($xml)
+    public function parse($xml): SentMessage
     {
         $header = simplexml_load_string($xml);
         return $this->parseHeader($header);
     }
 
-    public function parseHeader($header)
+    public function parseHeader($header): SentMessage
     {
-        $direction = $header->direction;
-        $result = ($direction == Message::Inbound)
-            ? new InboxMessage()
-            : new SentMessage();
-
+        $result = new SentMessage();
         $result->id($header["id"]);
         $result->originator($header->from->phonenumber);
         $result->recipient($header->to->phonenumber);
         $result->status($header->status);
         $result->type($header->type);
-        $result->direction($direction);
-        $result->parts($header->parts);
-        $result->bodyUri($header->body["uri"]);
-        $result->summary($header->summary);
-        $result->lastStatusAt($this->parseDateTime($header->laststatusat));
         $result->batchId($header->batch["id"]);
-        if ($direction == Message::Outbound) {
-            $result->submittedAt($this->parseDateTime($header->submittedat));
-            $result->sentAt($this->parseDateTime($header->sentat));
-            $result->deliveredAt($this->parseDateTime($header->deliveredat));
-            $result->username($header->username);
-            
-            if ($header->failurereason != null) {
-                $failureReason = new FailureReason();
-                $failureReason->code((int) $header->failurereason->code);
-                $failureReason->description($header->failurereason->description);
-                $failureReason->permanentFailure($this->parseBool($header->failurereason->permanentfailure));
-                
-                $result->failureReason($failureReason);
-            }
+        $result->deliveredAt($this->parseDateTime($header->deliveredat));
 
-        } else {
-            $result->receivedAt($this->parseDateTime($header->receivedat));
-            $readAt = $header->readat;
-            if (substr($readAt, 0, 2) != "00") {
-                $result->readAt($this->parseDateTime($readAt));
-                $result->readBy($header->readby);
-            }
+        if (isset($header->failurereason)) {
+            $failureReason = new FailureReason();
+            $failureReason->code((int) $header->failurereason->code);
+            $failureReason->description($header->failurereason->description);
+            $failureReason->permanentFailure($this->parseBool($header->failurereason->permanentfailure));
+
+            $result->failureReason($failureReason);
         }
-        
+
         return $result;
     }
 
-    private function parseDateTime($value)
+    private function parseDateTime($value): \DateTime|false
     {
+        $value = (string) $value;
         $value = (strlen($value) > 20)
             ? substr($value, 0, 19) . "Z"
             : $value;
 
         return \DateTime::createFromFormat(\DateTime::ISO8601, $value);
     }
-    
-    private function parseBool($value) {
-       if ($value !== "false") {
-          return true;
-       } else {
-          return false;
-       }
+
+    private function parseBool($value): bool
+    {
+        return (string) $value !== "false";
     }
 }

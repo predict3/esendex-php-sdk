@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,7 +36,8 @@ namespace Esendex\Authentication;
 
 class LoginAuthentication extends AbstractAuthentication
 {
-    private $username, $password;
+    private string $username;
+    private string $password;
 
     /**
      * @param $accountReference
@@ -54,7 +55,7 @@ class LoginAuthentication extends AbstractAuthentication
     /**
      * @return string
      */
-    function getEncodedValue()
+    public function getEncodedValue(): string
     {
         return "Basic " . base64_encode("{$this->username}:{$this->password}");
     }

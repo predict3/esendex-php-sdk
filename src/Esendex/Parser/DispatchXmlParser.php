@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,35 +33,28 @@
  * @link       https://github.com/esendex/esendex-php-sdk
  */
 namespace Esendex\Parser;
-use Esendex\Model\Api;
-use Esendex\Model\Message;
-use Esendex\Model\ResultItem;
+
 use Esendex\Exceptions\ArgumentException;
 use Esendex\Exceptions\XmlException;
+use Esendex\Model\Api;
+use Esendex\Model\DispatchMessage;
+use Esendex\Model\ResultItem;
 
 class DispatchXmlParser
 {
     private $reference;
 
-    function __construct($accountReference)
+    public function __construct($accountReference)
     {
         $this->reference = $accountReference;
     }
 
-    public function encode(\Esendex\Model\DispatchMessage $message)
+    public function encode(DispatchMessage $message): string
     {
-        $doc = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><messages />", 0, false, Api::NS);
-        $doc->addAttribute("xmlns", Api::NS);
-        $doc->accountreference = $this->reference;
-        if ($message->characterSet() != null)
-            $doc->characterset = $message->characterSet();
-
-        $this->addMessage($doc, $message);
-
-        return $doc->asXML();
+        return $this->encodeMultiple([$message]);
     }
 
-    public function encodeMultiple(array $messages)
+    public function encodeMultiple(array $messages): string
     {
         if (count($messages) < 1) {
             throw new ArgumentException("No message found");
@@ -70,8 +63,9 @@ class DispatchXmlParser
         $doc = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\"?><messages />", 0, false, Api::NS);
         $doc->addAttribute("xmlns", Api::NS);
         $doc->accountreference = $this->reference;
-        if ($messages[0]->characterSet() != null)
+        if ($messages[0]->characterSet() != null) {
             $doc->characterset = $messages[0]->characterSet();
+        }
 
         foreach ($messages as $message) {
             $this->addMessage($doc, $message);
@@ -80,55 +74,60 @@ class DispatchXmlParser
         return $doc->asXML();
     }
 
-    public function addMessage(\SimpleXMLElement $doc, \Esendex\Model\DispatchMessage $message)
+    public function addMessage(\SimpleXMLElement $doc, DispatchMessage $message): void
     {
-        if ($message->originator() != null) {
-            if (ctype_digit($message->originator())) {
-                if (strlen($message->originator()) > 20)
+        $originator = $message->originator();
+        if ($originator != null) {
+            if (ctype_digit($originator)) {
+                if (strlen($originator) > 20) {
                     throw new ArgumentException("Numeric originator must be <= 20 digits");
+                }
             } else {
-                if (strlen($message->originator()) > 11)
+                if (strlen($originator) > 11) {
                     throw new ArgumentException("Alphanumeric originator must <= 11 characters");
-                if (!preg_match("/^[a-zA-Z0-9\*\$\?\!\"\#\%\&_\-\,\.\s@'\+]{1,11}$/",
-                                $message->originator()))
+                }
+                if (!preg_match("/^[a-zA-Z0-9\*\$\?\!\"\#\%\&_\-\,\.\s@'\+]{1,11}$/", $originator)) {
                     throw new ArgumentException("Alphanumeric originator contains invalid character(s)");
+                }
             }
         }
-        $recipient = $message->recipient();
 
+        $recipient = $message->recipient();
         if ($recipient === null || $recipient === '') {
             throw new ArgumentException("Recipient is invalid");
         }
-        if ($message->validityPeriod() > 72)
+        if ($message->validityPeriod() > 72) {
             throw new ArgumentException("Validity too long, must be less or equal to than 72");
+        }
 
         $child = $doc->addChild("message");
-        if ($message->originator() != null)
-            $child->from = $message->originator();
+        if ($originator != null) {
+            $child->from = $originator;
+        }
         $child->to = $recipient;
         $child->body = $message->body();
-		    $child->type = $message->type();
-        if ($message->validityPeriod() > 0)
+        $child->type = $message->type();
+        if ($message->validityPeriod() > 0) {
             $child->validity = $message->validityPeriod();
-        if ($message->language() != null)
+        }
+        if ($message->language() != null) {
             $child->lang = $message->language();
-        if ($message->retries() != null)
+        }
+        if ($message->retries() != null) {
             $child->retries = $message->retries();
-
+        }
     }
 
-    public function parse($xml)
+    public function parse($xml): array
     {
         $headers = simplexml_load_string($xml);
-        if ($headers->getName() != "messageheaders")
+        if ($headers->getName() != "messageheaders") {
             throw new XmlException("Xml is missing <messageheaders /> root element");
+        }
 
-        $results = array();
-        $batchid = $headers['batchid'];
-
-        foreach ($headers->messageheader as $header)
-        {
-            $results[] = new ResultItem($header["id"], $header["uri"], $batchid);
+        $results = [];
+        foreach ($headers->messageheader as $header) {
+            $results[] = new ResultItem($header["id"], $header["uri"], $headers['batchid']);
         }
 
         return $results;

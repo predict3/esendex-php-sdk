@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -45,7 +45,7 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
                                     </from>
                                     <receivedat>2016-10-10T13:00:00.123Z</receivedat>
                                  </optout>";
-                                 
+
     const EXPECTED_POST_ENCODE_RESULT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
                              <optout xmlns=\"http://api.esendex.com/ns/\">
                                 <accountreference>EX0012345</accountreference>
@@ -53,7 +53,7 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
                                    <phonenumber>44712345678</phonenumber>
                                 </from>
                              </optout>";
-    
+
     const OPTOUTS_RESPONSE_XML = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
                                   <optouts startindex=\"0\" count=\"2\" totalcount=\"6\" xmlns=\"http://api.esendex.com/ns/\">
                                      <optout id=\"47a1144b-8a68-4608-9360-d4a52aaf90d2\">
@@ -77,7 +77,7 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
     {
         $parser = new OptOutXmlParser();
         $result = $parser->encodePostRequest("EX0012345", "44712345678");
-        
+
         $formattedResult = preg_replace('/\s/', '', $result);
         $formattedExpectedResult = preg_replace('/\s/', '', self::EXPECTED_POST_ENCODE_RESULT);
         $this->assertSame($formattedExpectedResult, $formattedResult);
@@ -108,8 +108,8 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
     {
         $parser = new OptOutXmlParser();
 
-        $result = $parser->parse(self::OPTOUT_RESPONSE_XML);
-        
+        $result = $parser->parseOptOut(simplexml_load_string(self::OPTOUT_RESPONSE_XML));
+
         $this->assertInstanceOf("\\Esendex\\Model\\OptOut", $result);
 
         $this->assertEquals("47a1144b-8a68-4608-9360-d4a52aaf90d2", $result->id());
@@ -125,11 +125,11 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
     function parsePostResponse()
     {
         $parser = new OptOutXmlParser();
-        
+
         $postResponse = "<response xmlns=\"http://api.esendex.com/ns/\">".self::OPTOUT_RESPONSE_XML."</response>";
-        
+
         $result = $parser->parsePostResponse($postResponse);
-        
+
         $this->assertInstanceOf("\\Esendex\\Model\\OptOut", $result);
 
         $this->assertEquals("47a1144b-8a68-4608-9360-d4a52aaf90d2", $result->id());
@@ -140,21 +140,21 @@ class OptOutXmlParserTest extends \PHPUnit\Framework\TestCase
             $result->receivedAt()
         );
     }
-    
+
     #[\PHPUnit\Framework\Attributes\Test]
     function parseMultipleResult()
     {
         $parser = new OptOutXmlParser();
-        
+
         $result = $parser->parseMultipleResult(self::OPTOUTS_RESPONSE_XML);
-        
+
         $this->assertEquals(6, $result->totalCount());
         $this->assertEquals(0, $result->startIndex());
         $this->assertEquals(2, $result->count());
-        
+
         $optOuts = $result->optOuts();
-        
-        $this->assertEquals("47a1144b-8a68-4608-9360-d4a52aaf90d2", $optOuts[0]->id());        
+
+        $this->assertEquals("47a1144b-8a68-4608-9360-d4a52aaf90d2", $optOuts[0]->id());
         $this->assertEquals("EX0012345", $optOuts[0]->accountReference());
         $this->assertEquals("447728693893", $optOuts[0]->from()->phoneNumber());
         $expectedDate = new \DateTime("2015-11-09T15:18:19.033333Z");

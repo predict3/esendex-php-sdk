@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,15 +36,15 @@ namespace Esendex\Model;
 
 class FailureReason
 {
-	private $code;
-	private $description;
-	private $permanentFailure;
-	
+    private ?int $code = null;
+    private $description;
+    private ?bool $permanentFailure = null;
+
     /**
      * @param int $value
      * @return int
      */
-    public function code($value = null)
+    public function code($value = null): ?int
     {
         if ($value != null) {
             $this->code = $value;
@@ -68,9 +68,9 @@ class FailureReason
      * @param bool $value
      * @return bool
      */
-    public function permanentFailure($value = null)
+    public function permanentFailure($value = null): ?bool
     {
-        if ($value != null) {
+        if ($value !== null) {
             $this->permanentFailure = $value;
         }
         return $this->permanentFailure;

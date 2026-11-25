@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2013, Esendex Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Esendex nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -38,17 +38,17 @@ use Esendex\Model\BatchesMessage;
 
 class BatchesMessagesXmlParser
 {
-  
-    public function parse($xml)
+
+    public function parse($xml): array
     {
         $header = simplexml_load_string($xml);
         return $this->parseHeader($header);
     }
 
-    public function parseHeader($header)
+    public function parseHeader($header): array
     {
 
-        $result = array();
+        $result = [];
         foreach ($header->messageheader as $message) {
             $item = new BatchesMessage();
             $item->phonenumber($message->to[0]->phonenumber);

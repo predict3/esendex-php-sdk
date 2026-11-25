@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -61,88 +61,6 @@ class SentMessagesServiceTest extends \PHPUnit\Framework\TestCase
             ->getMock();
 
         $this->service = new SentMessagesService($this->authentication, $this->httpUtil, $this->parser);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    function latestReturnsSentMessagesPage()
-    {
-        $response = "xml response";
-        $sentMessagesPage = new Model\SentMessagesPage(0, 10);
-
-        $this->httpUtil
-            ->expects($this->once())
-            ->method("get")
-            ->with(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/messageheaders?accountreference={$this->reference}"
-            ),
-            $this->equalTo($this->authentication)
-        )
-            ->willReturn($response);
-        $this->parser
-            ->expects($this->once())
-            ->method("parse")
-            ->with($this->equalTo($response))
-            ->willReturn($sentMessagesPage);
-
-        $result = $this->service->latest();
-
-        $this->assertSame($sentMessagesPage, $result);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    function latestWithStartIndexForPageStart()
-    {
-        $startIndex = 2;
-
-        $this->httpUtil
-            ->expects($this->once())
-            ->method("get")
-            ->with(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/messageheaders?startIndex={$startIndex}&accountreference={$this->reference}"
-            ),
-            $this->equalTo($this->authentication)
-        );
-
-        $this->service->latest($startIndex);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    function latestWithStartIndexAndCountToPage()
-    {
-        $startIndex = 11;
-        $count = 10;
-
-        $this->httpUtil
-            ->expects($this->once())
-            ->method("get")
-            ->with(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/messageheaders?startIndex={$startIndex}&count={$count}&accountreference={$this->reference}"
-            ),
-            $this->equalTo($this->authentication)
-        );
-
-        $this->service->latest($startIndex, $count);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    function latestWithCountAloneLimitsReturnedResults()
-    {
-        $count = 2;
-
-        $this->httpUtil
-            ->expects($this->once())
-            ->method("get")
-            ->with(
-            $this->equalTo(
-                "https://api.esendex.com/v1.0/messageheaders?count={$count}&accountreference={$this->reference}"
-            ),
-            $this->equalTo($this->authentication)
-        );
-
-        $this->service->latest(null, $count);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

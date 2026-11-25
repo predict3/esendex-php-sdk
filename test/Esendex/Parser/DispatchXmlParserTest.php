@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -82,7 +82,7 @@ XML;
 
         $this->assertEquals($expected, $result);
     }
-    
+
     #[\PHPUnit\Framework\Attributes\Test]
     function encodeVoiceMessage()
     {
@@ -114,7 +114,7 @@ XML;
 
         $this->assertEquals($expected, $result);
     }
-    
+
     public static function characterSets(): array
     {
         return array(array(MessageBody::CharsetGSM),
@@ -152,7 +152,7 @@ XML;
 
         $this->assertEquals($expected, $result);
     }
-    
+
     public static function invalidOriginators(): array
     {
         return array(array("TooLongForAlpha", "Alphanumeric originator must <= 11 characters"),
@@ -228,7 +228,7 @@ XML;
         $parser = new DispatchXmlParser($reference);
 
         $result = $parser->encode($message);
-        
+
         $this->assertThat($result, $this->stringContains("This &amp; That"));
     }
 

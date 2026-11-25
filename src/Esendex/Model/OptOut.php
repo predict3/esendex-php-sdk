@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -36,16 +36,16 @@ namespace Esendex\Model;
 
 class OptOut
 {
-    private $id;
-    private $accountReference;
-    private $from;
-    private $receivedAt;
+    private ?string $id = null;
+    private ?string $accountReference = null;
+    private ?FromAddress $from = null;
+    private ?\DateTime $receivedAt = null;
 
     /**
      * @param string $value
      * @return string
      */
-    public function id($value = null)
+    public function id($value = null): ?string
     {
         if ($value != null) {
             $this->id = (string)$value;
@@ -58,19 +58,19 @@ class OptOut
      * @return string
      */
 
-	public function receivedAt($value = null)
+    public function receivedAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->receivedAt = $value;
         }
         return $this->receivedAt;
     }
-	
+
     /**
      * @param string $value
      * @return fromAddress
      */
-    public function from($value = null)
+    public function from($value = null): ?FromAddress
     {
         if ($value != null) {
             $this->from = new FromAddress();
@@ -78,12 +78,13 @@ class OptOut
         }
         return $this->from;
     }
-    
+
     /**
      * @param string $value
      * @return string
      */
-    public function accountReference($value = null){
+    public function accountReference($value = null): ?string
+    {
         if($value != null) {
             $this->accountReference = (string)$value;
         }

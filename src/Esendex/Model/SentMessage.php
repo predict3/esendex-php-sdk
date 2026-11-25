@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,43 +34,29 @@
  */
 namespace Esendex\Model;
 
-class SentMessage extends ResultMessage
+class SentMessage extends Message
 {
-    private $submittedAt;
-    private $sentAt;
-    private $deliveredAt;
-    private $username;
-    private $failureReason;
+    private ?string $id = null;
+    private ?\DateTime $deliveredAt = null;
+    private ?FailureReason $failureReason = null;
 
     /**
-     * @param \DateTime $value
-     * @return \DateTime
+     * @param string $value
+     * @return string
      */
-    public function submittedAt($value = null)
+    public function id($value = null): ?string
     {
-        if ($value instanceof \DateTime) {
-            $this->submittedAt = $value;
+        if ($value != null) {
+            $this->id = (string)$value;
         }
-        return $this->submittedAt;
+        return $this->id;
     }
 
     /**
      * @param \DateTime $value
      * @return \DateTime
      */
-    public function sentAt($value = null)
-    {
-        if ($value instanceof \DateTime) {
-            $this->sentAt = $value;
-        }
-        return $this->sentAt;
-    }
-
-    /**
-     * @param \DateTime $value
-     * @return \DateTime
-     */
-    public function deliveredAt($value = null)
+    public function deliveredAt($value = null): ?\DateTime
     {
         if ($value instanceof \DateTime) {
             $this->deliveredAt = $value;
@@ -79,22 +65,10 @@ class SentMessage extends ResultMessage
     }
 
     /**
-     * @param string $value
-     * @return string
-     */
-    public function username($value = null)
-    {
-        if ($value != null) {
-            $this->username = (string)$value;
-        }
-        return $this->username;
-    }
-    
-    /**
      * @param \Esendex\Model\FailureReason $value
-     * @return \Esendex\Model\FailureReason 
+     * @return \Esendex\Model\FailureReason
      */
-    public function failureReason($value = null)
+    public function failureReason($value = null): ?FailureReason
     {
         if ($value != null) {
             $this->failureReason = $value;

@@ -2,7 +2,7 @@
 /**
  * Copyright (c) 2019, Commify Ltd.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -13,7 +13,7 @@
  *     * Neither the name of Commify nor the
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,33 +41,5 @@ interface IHttp
 
     function get($url, IAuthentication $authentication);
 
-    function put($url, IAuthentication $authentication, $data);
-
     function post($url, IAuthentication $authentication, $data);
-    
-    function postJson($url, IAuthentication $authentication, $data);
-
-    function delete($url, IAuthentication $authentication);
 }
-
-class HttpException extends \Esendex\Exceptions\EsendexException {}
-
-class BadRequestException extends HttpException {}
-
-class UnauthorisedException extends HttpException {}
-
-class PaymentRequiredException extends HttpException {}
-
-class UserCredentialsException extends HttpException {}
-
-class ResourceNotFoundException extends HttpException {}
-
-class MethodNotAllowedException extends HttpException {}
-
-class RequestTimedOutException extends HttpException {}
-
-class ServerErrorException extends HttpException {}
-
-class NotImplementedException extends HttpException {}
-
-class ServiceUnavailableException extends HttpException {}
