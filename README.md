@@ -3,8 +3,9 @@ esendex-php-sdk (version Predict)
 
 Bibliothèque d'envoi de SMS utilisée par nos projets (php-lib, unsubscribe-bundle et les applications qui en dépendent).
 
-Depuis la 3.8, elle ne contient que ce que nos projets utilisent réellement, et reste rétrocompatible :
-les noms de classes, le namespace `Esendex\` et les signatures des méthodes sont inchangés.
+Depuis la 3.8, elle ne contient que ce que nos projets utilisent réellement (tableau ci-dessous) ;
+le reste du SDK Esendex a été supprimé. Pour ces usages, rien ne change : mêmes noms de classes,
+même namespace `Esendex\`, mêmes paramètres de méthodes.
 
 ## Installation
 
@@ -37,8 +38,10 @@ sinon Composer installe la version publique de Packagist, qui n'a pas nos modifi
 | `SentMessagesService` | `loadMessages` | reporting SMS (via php-lib) |
 | `Http\HttpClient` | `get` | appel direct de l'API (monitoring) |
 
-Les erreurs HTTP lèvent une `Exceptions\EsendexException` dont `getCode()` est le code HTTP :
+Les erreurs HTTP 400, 401, 402, 403, 404, 405, 408, 500, 501 et 503 lèvent une `Http\HttpException`
+(sous-classe de `Exceptions\EsendexException`) dont `getCode()` est le code HTTP :
 php-lib s'en sert pour distinguer un envoi rejeté (4xx) d'un échec inconnu.
+Les autres codes et les erreurs réseau lèvent une `\Exception` générique.
 
 ## Exemples
 
